@@ -24,11 +24,11 @@ export const auth = defineAuth({
       },
       callbackUrls: [
         "http://localhost:3000/auth/callback",
-        // Add production URL after deployment
+        "https://main.d137jxngnvzxkf.amplifyapp.com/auth/callback",
       ],
       logoutUrls: [
         "http://localhost:3000/",
-        // Add production URL after deployment
+        "https://main.d137jxngnvzxkf.amplifyapp.com/",
       ],
     },
   },
