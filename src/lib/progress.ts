@@ -1,7 +1,16 @@
 "use client";
 
+import { Amplify } from "aws-amplify";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "../../amplify/data/resource";
+import outputs from "../../amplify_outputs.json";
+
+// Ensure Amplify is configured before generating client
+try {
+  Amplify.configure(outputs, { ssr: true });
+} catch {
+  // Already configured
+}
 
 // Generate typed client
 const client = generateClient<Schema>();
@@ -36,16 +45,18 @@ export interface UserProgressSummary {
  * Get all progress for a user
  */
 export async function getUserProgress(userId: string): Promise<ModuleProgress[]> {
+  console.log("[Progress] Fetching progress for user:", userId);
   try {
     const { data, errors } = await client.models.ModuleProgress.list({
       filter: { userId: { eq: userId } },
     });
 
     if (errors) {
-      console.error("Error fetching progress:", errors);
+      console.error("[Progress] Error fetching progress:", errors);
       return [];
     }
 
+    console.log("[Progress] Fetched progress:", data);
     return (data || []).map((item) => ({
       id: item.id,
       userId: item.userId,
@@ -58,7 +69,7 @@ export async function getUserProgress(userId: string): Promise<ModuleProgress[]>
       bookmarks: item.bookmarks?.filter((b): b is string => b !== null) || [],
     }));
   } catch (error) {
-    console.error("Error fetching user progress:", error);
+    console.error("[Progress] Error fetching user progress:", error);
     return [];
   }
 }
@@ -95,7 +106,7 @@ export async function getModuleProgress(
       bookmarks: item.bookmarks?.filter((b): b is string => b !== null) || [],
     };
   } catch (error) {
-    console.error("Error fetching module progress:", error);
+    console.error("[Progress] Error fetching module progress:", error);
     return null;
   }
 }
@@ -108,12 +119,14 @@ export async function startModule(
   moduleId: string,
   firstLessonId: string
 ): Promise<ModuleProgress | null> {
+  console.log("[Progress] Starting module:", { userId, moduleId, firstLessonId });
   try {
     // Check if progress already exists
     const existing = await getModuleProgress(userId, moduleId);
 
     if (existing) {
       // Update existing
+      console.log("[Progress] Updating existing progress:", existing.id);
       const { data, errors } = await client.models.ModuleProgress.update({
         id: existing.id,
         status: "IN_PROGRESS",
@@ -122,13 +135,15 @@ export async function startModule(
       });
 
       if (errors) {
-        console.error("Error updating module progress:", errors);
+        console.error("[Progress] Error updating module progress:", errors);
         return null;
       }
 
+      console.log("[Progress] Updated progress:", data);
       return data as unknown as ModuleProgress;
     } else {
       // Create new
+      console.log("[Progress] Creating new progress record");
       const { data, errors } = await client.models.ModuleProgress.create({
         userId,
         moduleId,
@@ -139,14 +154,15 @@ export async function startModule(
       });
 
       if (errors) {
-        console.error("Error creating module progress:", errors);
+        console.error("[Progress] Error creating module progress:", errors);
         return null;
       }
 
+      console.log("[Progress] Created progress:", data);
       return data as unknown as ModuleProgress;
     }
   } catch (error) {
-    console.error("Error starting module:", error);
+    console.error("[Progress] Error starting module:", error);
     return null;
   }
 }
@@ -159,24 +175,33 @@ export async function updateCurrentLesson(
   moduleId: string,
   lessonId: string
 ): Promise<boolean> {
+  console.log("[Progress] Updating current lesson:", { userId, moduleId, lessonId });
   try {
     const existing = await getModuleProgress(userId, moduleId);
 
     if (!existing) {
       // Start the module if not started
+      console.log("[Progress] Module not started, starting it now");
       await startModule(userId, moduleId, lessonId);
       return true;
     }
 
+    console.log("[Progress] Updating existing progress:", existing.id);
     const { errors } = await client.models.ModuleProgress.update({
       id: existing.id,
       currentLessonId: lessonId,
       status: "IN_PROGRESS",
     });
 
-    return !errors;
+    if (errors) {
+      console.error("[Progress] Error updating lesson:", errors);
+      return false;
+    }
+
+    console.log("[Progress] Lesson updated successfully");
+    return true;
   } catch (error) {
-    console.error("Error updating current lesson:", error);
+    console.error("[Progress] Error updating current lesson:", error);
     return false;
   }
 }
@@ -188,10 +213,12 @@ export async function completeModule(
   userId: string,
   moduleId: string
 ): Promise<boolean> {
+  console.log("[Progress] Completing module:", { userId, moduleId });
   try {
     const existing = await getModuleProgress(userId, moduleId);
 
     if (!existing) {
+      console.log("[Progress] No progress found for module");
       return false;
     }
 
@@ -201,9 +228,15 @@ export async function completeModule(
       completedAt: new Date().toISOString(),
     });
 
-    return !errors;
+    if (errors) {
+      console.error("[Progress] Error completing module:", errors);
+      return false;
+    }
+
+    console.log("[Progress] Module completed successfully");
+    return true;
   } catch (error) {
-    console.error("Error completing module:", error);
+    console.error("[Progress] Error completing module:", error);
     return false;
   }
 }
@@ -239,7 +272,7 @@ export async function toggleBookmark(
 
     return !errors;
   } catch (error) {
-    console.error("Error toggling bookmark:", error);
+    console.error("[Progress] Error toggling bookmark:", error);
     return false;
   }
 }

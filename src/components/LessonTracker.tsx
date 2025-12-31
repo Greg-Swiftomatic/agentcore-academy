@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
-import { updateCurrentLesson } from "@/lib/progress";
+import { updateCurrentLesson, completeModule, getModuleProgress } from "@/lib/progress";
+import curriculumData from "@/content/modules/curriculum.json";
 
 interface LessonTrackerProps {
   moduleId: string;
@@ -13,16 +14,59 @@ interface LessonTrackerProps {
  * Invisible component that tracks lesson progress when mounted
  */
 export function LessonTracker({ moduleId, lessonId }: LessonTrackerProps) {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  const trackedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (user?.id) {
-      // Track that the user is viewing this lesson
-      updateCurrentLesson(user.id, moduleId, lessonId).catch((err) => {
-        console.error("Failed to track lesson progress:", err);
-      });
+    // Prevent duplicate tracking for the same lesson
+    const trackingKey = `${moduleId}:${lessonId}`;
+    if (trackedRef.current === trackingKey) {
+      return;
     }
-  }, [user?.id, moduleId, lessonId]);
+
+    if (isLoading) {
+      return;
+    }
+
+    if (!user?.id) {
+      console.log("[LessonTracker] No user logged in, skipping tracking");
+      return;
+    }
+
+    console.log("[LessonTracker] Tracking lesson:", { moduleId, lessonId, userId: user.id });
+    trackedRef.current = trackingKey;
+
+    async function trackLesson() {
+      try {
+        // Update current lesson
+        await updateCurrentLesson(user!.id, moduleId, lessonId);
+        
+        // Check if this is the last lesson in the module
+        const module = curriculumData.modules.find((m) => m.id === moduleId);
+        if (module) {
+          const lessonIndex = module.lessons.findIndex((l) => l.id === lessonId);
+          const isLastLesson = lessonIndex === module.lessons.length - 1;
+          
+          if (isLastLesson) {
+            console.log("[LessonTracker] Last lesson reached, checking if should complete module");
+            const progress = await getModuleProgress(user!.id, moduleId);
+            
+            // Only mark complete if not already completed
+            if (progress && progress.status !== "COMPLETED") {
+              console.log("[LessonTracker] Marking module as completed");
+              await completeModule(user!.id, moduleId);
+            }
+          }
+        }
+        
+        console.log("[LessonTracker] Tracking complete");
+      } catch (err) {
+        console.error("[LessonTracker] Failed to track lesson progress:", err);
+      }
+    }
+
+    trackLesson();
+  }, [user?.id, moduleId, lessonId, isLoading]);
 
   // This component doesn't render anything
   return null;

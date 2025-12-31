@@ -16,25 +16,18 @@ import {
   AuthUser,
 } from "aws-amplify/auth";
 import { Hub } from "aws-amplify/utils";
+import outputs from "../../amplify_outputs.json";
 
-// Configure Amplify - try to load outputs if available
-function configureAmplify() {
-  try {
-    // Dynamic import of amplify outputs - file may not exist yet
-    // eslint-disable-next-line
-    const outputs = require("../../amplify_outputs.json");
+// Configure Amplify once
+let isConfigured = false;
+try {
+  if (!isConfigured && outputs) {
     Amplify.configure(outputs, { ssr: true });
-    return true;
-  } catch {
-    console.warn(
-      "Amplify outputs not found. Run `npx ampx sandbox` to generate configuration."
-    );
-    return false;
+    isConfigured = true;
   }
+} catch (error) {
+  console.warn("Failed to configure Amplify:", error);
 }
-
-// Initialize on module load
-const isConfigured = configureAmplify();
 
 export interface User {
   id: string;

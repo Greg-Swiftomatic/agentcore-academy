@@ -189,7 +189,7 @@ function ModuleBlueprint({
 }
 
 export default function CurriculumPage() {
-  const { getModuleStatus, getModuleProgressPercent, completedModules, totalModules, isLoading } = useProgress();
+  const { getModuleStatus, getModuleProgressPercent, overallProgress, isLoading } = useProgress();
 
   // Calculate which modules are unlocked based on prerequisites
   const isModuleUnlocked = (moduleIndex: number): boolean => {
@@ -199,8 +199,8 @@ export default function CurriculumPage() {
     return prevStatus === "COMPLETED";
   };
 
-  // Calculate total progress
-  const totalProgress = Math.round((completedModules / totalModules) * 100);
+  // Use overall progress from hook (average of all module progress)
+  const totalProgress = overallProgress;
 
   return (
     <div className="min-h-screen relative z-10">

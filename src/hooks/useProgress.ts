@@ -61,9 +61,10 @@ export function useProgress(): UseProgressReturn {
         progressMap[p.moduleId] = p;
       }
       
+      console.log("[useProgress] Loaded progress:", progressMap);
       setProgress(progressMap);
     } catch (error) {
-      console.error("Error loading progress:", error);
+      console.error("[useProgress] Error loading progress:", error);
     } finally {
       setIsLoading(false);
     }
@@ -93,6 +94,19 @@ export function useProgress(): UseProgressReturn {
       if (!user?.id) return;
       
       await updateCurrentLesson(user.id, moduleId, lessonId);
+      
+      // Check if this is the last lesson - if so, mark module complete
+      const module = curriculumData.modules.find((m) => m.id === moduleId);
+      if (module) {
+        const lessonIndex = module.lessons.findIndex((l) => l.id === lessonId);
+        const isLastLesson = lessonIndex === module.lessons.length - 1;
+        
+        if (isLastLesson) {
+          console.log("[useProgress] Last lesson reached, marking module complete");
+          await completeModule(user.id, moduleId);
+        }
+      }
+      
       await refreshProgress();
     },
     [user?.id, refreshProgress]
@@ -141,6 +155,8 @@ export function useProgress(): UseProgressReturn {
       if (moduleProgress.status === "NOT_STARTED") return 0;
 
       // Calculate based on current lesson position
+      // Progress = (current lesson index + 1) / total lessons
+      // Being ON lesson 1 means you've started it, so count it
       const module = curriculumData.modules.find((m) => m.id === moduleId);
       if (!module || !moduleProgress.currentLessonId) return 0;
 
@@ -150,8 +166,9 @@ export function useProgress(): UseProgressReturn {
       
       if (currentLessonIndex === -1) return 0;
       
-      // Progress is based on lessons completed (current lesson index / total)
-      return Math.round((currentLessonIndex / module.lessons.length) * 100);
+      // Progress: being on lesson 1 of 3 = 33%, lesson 2 of 3 = 66%, etc.
+      // We add 1 because viewing a lesson counts as progress toward completing it
+      return Math.round(((currentLessonIndex + 1) / module.lessons.length) * 100);
     },
     [progress]
   );
@@ -163,7 +180,12 @@ export function useProgress(): UseProgressReturn {
 
   const totalModules = curriculumData.modules.length;
 
-  const overallProgress = Math.round((completedModules / totalModules) * 100);
+  // Overall progress = average of all module progress percentages
+  const overallProgress = Math.round(
+    curriculumData.modules.reduce((sum, module) => {
+      return sum + getModuleProgressPercent(module.id);
+    }, 0) / totalModules
+  );
 
   // Find current module (first in-progress module)
   const currentModuleProgress = Object.values(progress).find(
