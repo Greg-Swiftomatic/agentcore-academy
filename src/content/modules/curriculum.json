@@ -1,0 +1,226 @@
+{
+  "modules": [
+    {
+      "id": "01-introduction",
+      "title": "Introduction to AgentCore",
+      "description": "Understand what Amazon Bedrock AgentCore is, why it exists, and its high-level architecture.",
+      "estimatedDuration": "45 minutes",
+      "prerequisites": [],
+      "lessons": [
+        {
+          "id": "01-what-is-agentcore",
+          "title": "What is AgentCore?",
+          "description": "An overview of AgentCore and its place in the AWS AI ecosystem.",
+          "estimatedDuration": "15 minutes"
+        },
+        {
+          "id": "02-architecture-overview",
+          "title": "Architecture Overview",
+          "description": "High-level view of AgentCore's components and how they interact.",
+          "estimatedDuration": "15 minutes"
+        },
+        {
+          "id": "03-key-concepts",
+          "title": "Key Concepts",
+          "description": "Essential terminology and concepts you'll use throughout the course.",
+          "estimatedDuration": "15 minutes"
+        }
+      ]
+    },
+    {
+      "id": "02-core-services",
+      "title": "Core Services Deep Dive",
+      "description": "Explore each service component in AgentCore - what it does, what problem it solves, and how it works.",
+      "estimatedDuration": "90 minutes",
+      "prerequisites": ["01-introduction"],
+      "lessons": [
+        {
+          "id": "01-service-overview",
+          "title": "Service Overview",
+          "description": "Introduction to the core services and how they fit together.",
+          "estimatedDuration": "20 minutes"
+        },
+        {
+          "id": "02-runtime-service",
+          "title": "Runtime Service",
+          "description": "Deep dive into the agent runtime service.",
+          "estimatedDuration": "25 minutes"
+        },
+        {
+          "id": "03-memory-service",
+          "title": "Memory Service",
+          "description": "Understanding agent memory and context management.",
+          "estimatedDuration": "25 minutes"
+        },
+        {
+          "id": "04-tool-service",
+          "title": "Tool Service",
+          "description": "How tools are defined, registered, and executed.",
+          "estimatedDuration": "20 minutes"
+        }
+      ]
+    },
+    {
+      "id": "03-agent-patterns",
+      "title": "Agent Design Patterns",
+      "description": "Learn design patterns for building effective AI agents, including tool integration and memory management.",
+      "estimatedDuration": "75 minutes",
+      "prerequisites": ["02-core-services"],
+      "lessons": [
+        {
+          "id": "01-tool-selection",
+          "title": "Tool Selection Patterns",
+          "description": "How agents decide which tools to use.",
+          "estimatedDuration": "25 minutes"
+        },
+        {
+          "id": "02-memory-patterns",
+          "title": "Memory & Context Patterns",
+          "description": "Strategies for managing conversation context and long-term memory.",
+          "estimatedDuration": "25 minutes"
+        },
+        {
+          "id": "03-custom-tools",
+          "title": "Building Custom Tools",
+          "description": "How to define and integrate custom tools/functions.",
+          "estimatedDuration": "25 minutes"
+        }
+      ]
+    },
+    {
+      "id": "04-hands-on-build",
+      "title": "Hands-On: Build Your First Agent",
+      "description": "Step-by-step walkthrough of building a simple but functional agent.",
+      "estimatedDuration": "60 minutes",
+      "prerequisites": ["03-agent-patterns"],
+      "lessons": [
+        {
+          "id": "01-project-setup",
+          "title": "Project Setup",
+          "description": "Setting up your development environment and AWS account.",
+          "estimatedDuration": "15 minutes"
+        },
+        {
+          "id": "02-basic-agent",
+          "title": "Creating a Basic Agent",
+          "description": "Write and deploy your first agent.",
+          "estimatedDuration": "25 minutes"
+        },
+        {
+          "id": "03-adding-tools",
+          "title": "Adding Custom Tools",
+          "description": "Extend your agent with custom capabilities.",
+          "estimatedDuration": "20 minutes"
+        }
+      ]
+    },
+    {
+      "id": "05-security-iam",
+      "title": "Security & IAM",
+      "description": "Understand permissions, data privacy, and security best practices for AgentCore.",
+      "estimatedDuration": "60 minutes",
+      "prerequisites": ["04-hands-on-build"],
+      "lessons": [
+        {
+          "id": "01-iam-basics",
+          "title": "IAM for AgentCore",
+          "description": "Required permissions and IAM role configuration.",
+          "estimatedDuration": "20 minutes"
+        },
+        {
+          "id": "02-data-privacy",
+          "title": "Data Privacy Considerations",
+          "description": "How data flows through agents and privacy implications.",
+          "estimatedDuration": "20 minutes"
+        },
+        {
+          "id": "03-security-best-practices",
+          "title": "Security Best Practices",
+          "description": "Hardening your agent deployments.",
+          "estimatedDuration": "20 minutes"
+        }
+      ]
+    },
+    {
+      "id": "06-operations",
+      "title": "Operations & Optimization",
+      "description": "Learn cost optimization, monitoring, error handling, and operational best practices.",
+      "estimatedDuration": "60 minutes",
+      "prerequisites": ["05-security-iam"],
+      "lessons": [
+        {
+          "id": "01-cost-optimization",
+          "title": "Cost Optimization",
+          "description": "Strategies for minimizing costs while maintaining performance.",
+          "estimatedDuration": "20 minutes"
+        },
+        {
+          "id": "02-monitoring",
+          "title": "Monitoring & Observability",
+          "description": "Setting up logging, metrics, and alerts.",
+          "estimatedDuration": "20 minutes"
+        },
+        {
+          "id": "03-error-handling",
+          "title": "Error Handling & Retries",
+          "description": "Building resilient agent systems.",
+          "estimatedDuration": "20 minutes"
+        }
+      ]
+    },
+    {
+      "id": "07-advanced-topics",
+      "title": "Advanced Topics",
+      "description": "Explore multi-agent orchestration, evaluation techniques, and scaling strategies.",
+      "estimatedDuration": "75 minutes",
+      "prerequisites": ["06-operations"],
+      "lessons": [
+        {
+          "id": "01-multi-agent",
+          "title": "Multi-Agent Orchestration",
+          "description": "Coordinating multiple agents for complex tasks.",
+          "estimatedDuration": "25 minutes"
+        },
+        {
+          "id": "02-evaluation",
+          "title": "Evaluating Agent Performance",
+          "description": "Metrics and techniques for measuring agent quality.",
+          "estimatedDuration": "25 minutes"
+        },
+        {
+          "id": "03-scaling",
+          "title": "Scaling Strategies",
+          "description": "Scaling your agent infrastructure for production loads.",
+          "estimatedDuration": "25 minutes"
+        }
+      ]
+    },
+    {
+      "id": "08-deployment",
+      "title": "Production Deployment",
+      "description": "Deploy your agents to production with confidence, including testing strategies.",
+      "estimatedDuration": "60 minutes",
+      "prerequisites": ["07-advanced-topics"],
+      "lessons": [
+        {
+          "id": "01-testing-strategies",
+          "title": "Testing Strategies",
+          "description": "How to test AI agents effectively.",
+          "estimatedDuration": "20 minutes"
+        },
+        {
+          "id": "02-deployment-patterns",
+          "title": "Deployment Patterns",
+          "description": "Infrastructure patterns for production agent systems.",
+          "estimatedDuration": "20 minutes"
+        },
+        {
+          "id": "03-going-live",
+          "title": "Going Live",
+          "description": "Checklist and best practices for production launch.",
+          "estimatedDuration": "20 minutes"
+        }
+      ]
+    }
+  ]
+}
