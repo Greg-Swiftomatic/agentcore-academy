@@ -7,7 +7,7 @@
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // GLM-4 model on OpenRouter - powerful and cost-effective
-const MODEL_ID = "thudm/glm-4-32b-0414";
+const MODEL_ID = "z-ai/glm-4.7";
 
 export interface TutorMessage {
   role: "user" | "assistant" | "system";
