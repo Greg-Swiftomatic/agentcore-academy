@@ -98,7 +98,7 @@ function ModuleCard({
 export default function HomePage() {
   return (
     <div className="min-h-screen relative z-10">
-      <Navigation user={null} />
+      <Navigation />
 
       {/* Hero Section */}
       <section className="pt-32 pb-24 px-6 relative">

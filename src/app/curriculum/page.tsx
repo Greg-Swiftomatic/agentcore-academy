@@ -2,11 +2,6 @@ import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
 import curriculumData from "@/content/modules/curriculum.json";
 
-const mockUser = {
-  name: "Developer",
-  avatarUrl: undefined,
-};
-
 // Mock progress data - replace with real data
 const mockModuleProgress: Record<string, { status: string; progress: number }> = {
   "01-introduction": { status: "completed", progress: 100 },
@@ -219,7 +214,7 @@ export default function CurriculumPage() {
 
   return (
     <div className="min-h-screen relative z-10">
-      <Navigation user={mockUser} />
+      <Navigation />
 
       <main className="pt-24 pb-12 px-6">
         <div className="max-w-4xl mx-auto">

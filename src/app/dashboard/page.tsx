@@ -1,11 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
-
-// Mock data - replace with real data from DynamoDB
-const mockUser = {
-  name: "Developer",
-  avatarUrl: undefined,
-};
+import { useAuth } from "@/lib/auth";
 
 const mockProgress = {
   currentModule: {
@@ -154,11 +151,12 @@ function ModuleCard({
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const overallProgress = Math.round((mockProgress.completedModules / mockProgress.totalModules) * 100);
 
   return (
     <div className="min-h-screen relative z-10">
-      <Navigation user={mockUser} />
+      <Navigation />
 
       <main className="pt-24 pb-12 px-6">
         <div className="max-w-6xl mx-auto">
@@ -170,7 +168,7 @@ export default function DashboardPage() {
             <span className="blueprint-label mb-4">Control Panel</span>
             <h1 className="mb-2">
               <span className="text-text-primary">Welcome back, </span>
-              <span className="text-cyan glow-cyan">{mockUser.name}</span>
+              <span className="text-cyan glow-cyan">{user?.name || "Developer"}</span>
             </h1>
             <p className="text-text-secondary">
               Continue your AgentCore training sequence

@@ -4,11 +4,6 @@ import { AITutor } from "@/components/AITutor";
 import curriculumData from "@/content/modules/curriculum.json";
 import { loadLessonContent } from "@/lib/lessons";
 
-const mockUser = {
-  name: "Developer",
-  avatarUrl: undefined,
-};
-
 interface LessonPageProps {
   params: Promise<{
     moduleId: string;
@@ -58,7 +53,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   return (
     <div className="min-h-screen relative z-10">
-      <Navigation user={mockUser} />
+      <Navigation />
 
       {/* Top Navigation Bar */}
       <div className="fixed top-16 left-0 right-0 z-40 bg-bp-deep/95 backdrop-blur-md border-b border-border-subtle">

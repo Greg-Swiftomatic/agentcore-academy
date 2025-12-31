@@ -3,7 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { Logo } from "./Logo";
+import { useAuth } from "@/lib/auth";
 
 interface NavLinkProps {
   href: string;
@@ -33,19 +35,19 @@ function NavLink({ href, children, isActive }: NavLinkProps) {
   );
 }
 
-interface NavigationProps {
-  user?: {
-    name?: string;
-    avatarUrl?: string;
-  } | null;
-}
-
-export function Navigation({ user }: NavigationProps) {
+export function Navigation() {
   const pathname = usePathname();
+  const { user, isLoading, logout } = useAuth();
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const isActive = (path: string) => {
     if (path === "/") return pathname === "/";
     return pathname.startsWith(path);
+  };
+
+  const handleLogout = async () => {
+    setShowDropdown(false);
+    await logout();
   };
 
   return (
@@ -86,30 +88,85 @@ export function Navigation({ user }: NavigationProps) {
 
           {/* Auth Section */}
           <div className="flex items-center gap-4">
-            {user ? (
-              <Link
-                href="/settings"
-                className="flex items-center gap-3 group"
-              >
-                {user.avatarUrl ? (
-                  <div className="relative">
-                    <Image
-                      src={user.avatarUrl}
-                      alt={user.name || "User"}
-                      width={32}
-                      height={32}
-                      className="border border-border group-hover:border-cyan transition-colors"
+            {isLoading ? (
+              <div className="w-8 h-8 border border-border bg-bp-secondary flex items-center justify-center animate-pulse">
+                <span className="w-2 h-2 bg-cyan rounded-full" />
+              </div>
+            ) : user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center gap-3 group"
+                >
+                  {user.avatarUrl ? (
+                    <div className="relative">
+                      <Image
+                        src={user.avatarUrl}
+                        alt={user.name || "User"}
+                        width={32}
+                        height={32}
+                        className="border border-border group-hover:border-cyan transition-colors"
+                      />
+                      <span className="absolute -top-px -right-px w-2 h-2 bg-success" />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 border border-border bg-bp-secondary flex items-center justify-center group-hover:border-cyan transition-colors">
+                      <span className="font-body text-xs text-cyan font-bold">
+                        {user.name?.[0]?.toUpperCase() || "U"}
+                      </span>
+                    </div>
+                  )}
+                </button>
+
+                {/* Dropdown Menu */}
+                {showDropdown && (
+                  <>
+                    {/* Backdrop */}
+                    <div 
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowDropdown(false)}
                     />
-                    <span className="absolute -top-px -right-px w-2 h-2 bg-success" />
-                  </div>
-                ) : (
-                  <div className="w-8 h-8 border border-border bg-bp-secondary flex items-center justify-center group-hover:border-cyan transition-colors">
-                    <span className="font-body text-xs text-cyan font-bold">
-                      {user.name?.[0] || "U"}
-                    </span>
-                  </div>
+                    
+                    {/* Menu */}
+                    <div className="absolute right-0 top-full mt-2 w-56 bg-bp-secondary border border-border-subtle z-50">
+                      <div className="p-4 border-b border-border-subtle">
+                        <p className="font-body text-sm text-text-primary font-bold truncate">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-text-muted truncate">
+                          {user.email}
+                        </p>
+                      </div>
+                      
+                      <div className="p-2">
+                        <Link
+                          href="/dashboard"
+                          className="block px-3 py-2 text-sm text-text-secondary hover:text-cyan hover:bg-bp-deep transition-colors"
+                          onClick={() => setShowDropdown(false)}
+                        >
+                          Dashboard
+                        </Link>
+                        <Link
+                          href="/settings"
+                          className="block px-3 py-2 text-sm text-text-secondary hover:text-cyan hover:bg-bp-deep transition-colors"
+                          onClick={() => setShowDropdown(false)}
+                        >
+                          Settings
+                        </Link>
+                      </div>
+                      
+                      <div className="p-2 border-t border-border-subtle">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full text-left px-3 py-2 text-sm text-error hover:bg-error/10 transition-colors"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  </>
                 )}
-              </Link>
+              </div>
             ) : (
               <Link href="/auth/signin" className="btn btn-primary">
                 <span>Initialize</span>

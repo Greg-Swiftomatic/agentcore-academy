@@ -1,9 +1,38 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { useAuth } from "@/lib/auth";
 
 export default function SignInPage() {
+  const { user, isLoading, isConfigured, signInWithGoogle, signInWithGitHub } = useAuth();
+  const router = useRouter();
+
+  // Redirect if already signed in
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.push("/dashboard");
+    }
+  }, [user, isLoading, router]);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      console.error("Sign in failed:", error);
+    }
+  };
+
+  const handleGitHubSignIn = async () => {
+    try {
+      await signInWithGitHub();
+    } catch (error) {
+      console.error("Sign in failed:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative z-10">
       {/* Decorative corners */}
@@ -36,15 +65,23 @@ export default function SignInPage() {
             </p>
           </div>
 
+          {/* Configuration Warning */}
+          {!isConfigured && (
+            <div className="mb-6 p-4 border border-warning/50 bg-warning/10 text-sm">
+              <p className="text-warning font-bold mb-2">Setup Required</p>
+              <p className="text-text-secondary">
+                Run <code className="bg-bp-deep px-1">npx ampx sandbox</code> to start the Amplify backend, then configure Google OAuth credentials.
+              </p>
+            </div>
+          )}
+
           {/* OAuth Buttons */}
           <div className="space-y-3 mb-8">
             {/* Google Sign In */}
             <button
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white text-gray-800 font-body font-bold text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors relative group"
-              onClick={() => {
-                // Will be connected to Amplify auth
-                console.log("Google sign in");
-              }}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white text-gray-800 font-body font-bold text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors relative group disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleGoogleSignIn}
+              disabled={!isConfigured || isLoading}
             >
               {/* Corner cuts */}
               <span className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-bp-primary border-l-[10px] border-l-transparent" />
@@ -71,11 +108,9 @@ export default function SignInPage() {
 
             {/* GitHub Sign In */}
             <button
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#0d1117] border border-[#30363d] text-white font-body font-bold text-sm uppercase tracking-wider hover:bg-[#161b22] hover:border-cyan transition-colors relative group"
-              onClick={() => {
-                // Will be connected to Amplify auth
-                console.log("GitHub sign in");
-              }}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#0d1117] border border-[#30363d] text-white font-body font-bold text-sm uppercase tracking-wider hover:bg-[#161b22] hover:border-cyan transition-colors relative group disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleGitHubSignIn}
+              disabled={!isConfigured || isLoading}
             >
               {/* Corner cuts */}
               <span className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-bp-primary border-l-[10px] border-l-transparent" />
