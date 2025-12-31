@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
 import { AITutor } from "@/components/AITutor";
+import { LessonTracker } from "@/components/LessonTracker";
 import curriculumData from "@/content/modules/curriculum.json";
 import { loadLessonContent } from "@/lib/lessons";
 
@@ -54,6 +55,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
   return (
     <div className="min-h-screen relative z-10">
       <Navigation />
+      <LessonTracker moduleId={moduleId} lessonId={lessonId} />
 
       {/* Top Navigation Bar */}
       <div className="fixed top-16 left-0 right-0 z-40 bg-bp-deep/95 backdrop-blur-md border-b border-border-subtle">
