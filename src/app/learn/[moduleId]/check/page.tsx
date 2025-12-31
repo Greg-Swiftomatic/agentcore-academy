@@ -14,9 +14,9 @@ export default function CheckPage() {
   const { user } = useAuth();
   const { markModuleComplete, refreshProgress } = useProgress();
 
-  const module = curriculumData.modules.find((m) => m.id === moduleId);
+  const currModule = curriculumData.modules.find((m) => m.id === moduleId);
 
-  if (!module) {
+  if (!currModule) {
     return (
       <div className="min-h-screen relative z-10">
         <Navigation />
@@ -53,8 +53,8 @@ export default function CheckPage() {
               Curriculum
             </Link>
             <span className="text-border-dashed">/</span>
-            <Link href={`/learn/${moduleId}/${module.lessons[0].id}`} className="hover:text-cyan transition-colors">
-              {module.title}
+            <Link href={`/learn/${moduleId}/${currModule.lessons[0].id}`} className="hover:text-cyan transition-colors">
+              {currModule.title}
             </Link>
             <span className="text-border-dashed">/</span>
             <span className="text-cyan">Comprehension Check</span>
@@ -63,7 +63,7 @@ export default function CheckPage() {
           {/* Header */}
           <div className="mb-8">
             <span className="blueprint-label mb-4">Module Verification</span>
-            <h1 className="text-text-primary mb-2">{module.title}</h1>
+            <h1 className="text-text-primary mb-2">{currModule.title}</h1>
             <p className="text-text-secondary">
               Test your understanding of the key concepts from this module.
               You need 80% to pass and unlock the next module.
@@ -96,7 +96,7 @@ export default function CheckPage() {
           {/* Back link */}
           <div className="mt-8 text-center">
             <Link
-              href={`/learn/${moduleId}/${module.lessons[module.lessons.length - 1].id}`}
+              href={`/learn/${moduleId}/${currModule.lessons[currModule.lessons.length - 1].id}`}
               className="text-text-muted hover:text-cyan text-sm transition-colors"
             >
               ← Back to last lesson

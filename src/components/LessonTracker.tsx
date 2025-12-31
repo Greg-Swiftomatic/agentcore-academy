@@ -42,10 +42,10 @@ export function LessonTracker({ moduleId, lessonId }: LessonTrackerProps) {
         await updateCurrentLesson(user!.id, moduleId, lessonId);
         
         // Check if this is the last lesson in the module
-        const module = curriculumData.modules.find((m) => m.id === moduleId);
-        if (module) {
-          const lessonIndex = module.lessons.findIndex((l) => l.id === lessonId);
-          const isLastLesson = lessonIndex === module.lessons.length - 1;
+        const currModule = curriculumData.modules.find((m) => m.id === moduleId);
+        if (currModule) {
+          const lessonIndex = currModule.lessons.findIndex((l) => l.id === lessonId);
+          const isLastLesson = lessonIndex === currModule.lessons.length - 1;
           
           if (isLastLesson) {
             console.log("[LessonTracker] Last lesson reached, checking if should complete module");
