@@ -2,91 +2,11 @@ import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
 import { AITutor } from "@/components/AITutor";
 import curriculumData from "@/content/modules/curriculum.json";
+import { loadLessonContent } from "@/lib/lessons";
 
 const mockUser = {
   name: "Developer",
   avatarUrl: undefined,
-};
-
-// Mock lesson content - in production this would come from MDX files
-const mockLessonContent: Record<string, { content: string; objectives: string[] }> = {
-  "01-what-is-agentcore": {
-    objectives: [
-      "Understand what AgentCore is and its purpose",
-      "Learn where AgentCore fits in the AWS AI ecosystem",
-      "Identify key use cases for AI agents",
-    ],
-    content: `# What is Amazon Bedrock AgentCore?
-
-**Amazon Bedrock AgentCore** is a fully managed service that helps you build, deploy, and scale AI agents on AWS. It provides the infrastructure and tools needed to create agents that can reason, plan, and take actions to accomplish tasks.
-
-## Why AgentCore?
-
-Traditional AI applications are limited to simple request-response patterns. You ask a question, you get an answer. But real-world tasks often require multiple steps, tool usage, and complex reasoning.
-
-**Agents** bridge this gap. An agent can:
-- Break down complex tasks into steps
-- Decide which tools to use
-- Execute actions and handle results
-- Maintain context across interactions
-
-## Key Components
-
-AgentCore provides several core capabilities:
-
-### 1. Agent Runtime
-The execution environment where your agents run. It handles:
-- Message routing
-- Tool orchestration
-- State management
-- Error handling
-
-### 2. Tool Integration
-Define custom tools that your agent can use:
-- API calls
-- Database queries
-- File operations
-- External service integration
-
-### 3. Memory Management
-Agents need to remember context:
-- Conversation history
-- User preferences
-- Task state
-- Long-term knowledge
-
-## Where Does AgentCore Fit?
-
-\`\`\`
-┌─────────────────────────────────────────┐
-│           Your Application              │
-├─────────────────────────────────────────┤
-│         Amazon Bedrock AgentCore        │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐   │
-│  │ Runtime │ │  Tools  │ │ Memory  │   │
-│  └─────────┘ └─────────┘ └─────────┘   │
-├─────────────────────────────────────────┤
-│           Amazon Bedrock                │
-│      (Foundation Models: Claude)        │
-├─────────────────────────────────────────┤
-│              AWS Cloud                  │
-│    (Lambda, DynamoDB, S3, etc.)        │
-└─────────────────────────────────────────┘
-\`\`\`
-
-AgentCore sits between your application and the underlying AI models. It handles the complexity of orchestrating multi-step tasks while you focus on defining what your agent should do.
-
-## Real-World Use Cases
-
-1. **Customer Support Agents**: Handle complex support tickets, look up order information, process returns
-2. **Research Assistants**: Search documents, summarize findings, generate reports
-3. **DevOps Automation**: Monitor systems, diagnose issues, execute remediation steps
-4. **Data Analysis**: Query databases, perform calculations, visualize results
-
-## Next Steps
-
-Now that you understand what AgentCore is and why it exists, let's dive into the architecture and see how all the pieces fit together.`,
-  },
 };
 
 interface LessonPageProps {
@@ -130,11 +50,8 @@ export default async function LessonPage({ params }: LessonPageProps) {
       ? currentModule.lessons[currentLessonIndex + 1]
       : null;
 
-  // Get lesson content (mock for now)
-  const lessonData = mockLessonContent[lessonId] || {
-    objectives: ["Complete this lesson"],
-    content: `# ${lesson.title}\n\nLesson content coming soon...`,
-  };
+  // Load lesson content from files
+  const lessonData = await loadLessonContent(moduleId, lessonId);
 
   // Find module index
   const moduleIndex = curriculumData.modules.findIndex((m) => m.id === moduleId);
