@@ -1,0 +1,112 @@
+"use client";
+
+import { use } from "react";
+import Link from "next/link";
+import { Navigation } from "@/components/Navigation";
+import { ComprehensionCheck } from "@/components/ComprehensionCheck";
+import { useProgress } from "@/hooks/useProgress";
+import { useAuth } from "@/lib/auth";
+import curriculumData from "@/content/modules/curriculum.json";
+
+export default function CheckPage({
+  params,
+}: {
+  params: Promise<{ moduleId: string }>;
+}) {
+  const { moduleId } = use(params);
+  const { user } = useAuth();
+  const { markModuleComplete, refreshProgress } = useProgress();
+
+  const module = curriculumData.modules.find((m) => m.id === moduleId);
+
+  if (!module) {
+    return (
+      <div className="min-h-screen relative z-10">
+        <Navigation />
+        <main className="pt-24 pb-12 px-6">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-text-primary mb-4">Module Not Found</h1>
+            <Link href="/curriculum" className="btn btn-primary">
+              Back to Curriculum
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const handleComplete = async (passed: boolean, score: number) => {
+    console.log("[Check] Completed:", { passed, score, moduleId });
+    
+    if (passed && user?.id) {
+      await markModuleComplete(moduleId);
+      await refreshProgress();
+    }
+  };
+
+  return (
+    <div className="min-h-screen relative z-10">
+      <Navigation />
+
+      <main className="pt-24 pb-12 px-6">
+        <div className="max-w-3xl mx-auto">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-xs text-text-muted mb-6 uppercase tracking-wider">
+            <Link href="/curriculum" className="hover:text-cyan transition-colors">
+              Curriculum
+            </Link>
+            <span className="text-border-dashed">/</span>
+            <Link href={`/learn/${moduleId}/${module.lessons[0].id}`} className="hover:text-cyan transition-colors">
+              {module.title}
+            </Link>
+            <span className="text-border-dashed">/</span>
+            <span className="text-cyan">Comprehension Check</span>
+          </div>
+
+          {/* Header */}
+          <div className="mb-8">
+            <span className="blueprint-label mb-4">Module Verification</span>
+            <h1 className="text-text-primary mb-2">{module.title}</h1>
+            <p className="text-text-secondary">
+              Test your understanding of the key concepts from this module.
+              You need 80% to pass and unlock the next module.
+            </p>
+          </div>
+
+          {/* Notice */}
+          <div className="schematic-box mb-8" data-label="VERIFICATION PROTOCOL">
+            <div className="flex items-start gap-4">
+              <div className="w-8 h-8 border border-dashed border-cyan flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-text-primary font-body font-bold text-sm mb-1">
+                  Scenario-Based Assessment
+                </p>
+                <p className="text-text-secondary text-sm">
+                  These questions test your ability to apply concepts, not just recall facts.
+                  Take your time and think through each scenario.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Comprehension Check Component */}
+          <ComprehensionCheck moduleId={moduleId} onComplete={handleComplete} />
+
+          {/* Back link */}
+          <div className="mt-8 text-center">
+            <Link
+              href={`/learn/${moduleId}/${module.lessons[module.lessons.length - 1].id}`}
+              className="text-text-muted hover:text-cyan text-sm transition-colors"
+            >
+              ← Back to last lesson
+            </Link>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

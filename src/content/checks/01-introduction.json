@@ -1,0 +1,118 @@
+{
+  "moduleId": "01-introduction",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "scenario",
+      "question": "You're building an AI agent that needs to access a customer's Salesforce data on their behalf. Which AgentCore service handles the authentication and permission delegation?",
+      "options": [
+        { "id": "a", "text": "Runtime - it manages all agent execution" },
+        { "id": "b", "text": "Gateway - it converts APIs into tools" },
+        { "id": "c", "text": "Identity - it handles authentication and acts on behalf of users" },
+        { "id": "d", "text": "Memory - it stores user credentials" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Identity service manages agent authentication and can act on behalf of users with delegated permissions. It integrates with identity providers like Okta, Entra, and Cognito, and handles secure token management.",
+      "concept": "Identity service purpose"
+    },
+    {
+      "id": "q2",
+      "type": "concept",
+      "question": "What does 'session isolation' in AgentCore Runtime guarantee?",
+      "options": [
+        { "id": "a", "text": "Each user gets their own dedicated server" },
+        { "id": "b", "text": "Data from one user's session cannot leak to another user's session" },
+        { "id": "c", "text": "Sessions are limited to 30 minutes maximum" },
+        { "id": "d", "text": "Only one agent can run at a time" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Session isolation means complete separation between user sessions - one session cannot access another session's data or state. This is a critical security feature that prevents data leakage between users.",
+      "concept": "Session isolation"
+    },
+    {
+      "id": "q3",
+      "type": "application",
+      "question": "Your team already uses LangGraph for their agent logic. Can you use AgentCore with your existing code?",
+      "options": [
+        { "id": "a", "text": "No, AgentCore only works with AWS Strands Agents" },
+        { "id": "b", "text": "Yes, but you must rewrite your agent using the Bedrock API" },
+        { "id": "c", "text": "Yes, AgentCore is framework-agnostic and works with LangGraph, CrewAI, and custom frameworks" },
+        { "id": "d", "text": "Only if you use Amazon Bedrock models" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "AgentCore is both framework-agnostic and model-agnostic. It works with LangGraph, LangChain, CrewAI, Strands Agents, or any custom framework. You can also use any LLM provider, not just Bedrock models.",
+      "concept": "Framework agnostic"
+    },
+    {
+      "id": "q4",
+      "type": "scenario",
+      "question": "You need your agent to query a PostgreSQL database and also call a REST API. Which AgentCore service converts these into tools the agent can use?",
+      "options": [
+        { "id": "a", "text": "Tools service" },
+        { "id": "b", "text": "Gateway service" },
+        { "id": "c", "text": "Memory service" },
+        { "id": "d", "text": "Runtime service" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Gateway service converts your existing APIs, Lambda functions, and services into MCP (Model Context Protocol) tools that agents can discover and use. It handles the translation layer between your services and the agent.",
+      "concept": "Gateway service purpose"
+    },
+    {
+      "id": "q5",
+      "type": "critical",
+      "question": "A colleague says: 'AgentCore is basically just another chatbot framework like ChatGPT.' What's wrong with this statement?",
+      "options": [
+        { "id": "a", "text": "Nothing - AgentCore is indeed a chatbot framework" },
+        { "id": "b", "text": "AgentCore is infrastructure for running agents, not a framework for building them - it handles deployment, scaling, security, and tool integration" },
+        { "id": "c", "text": "The only difference is that AgentCore runs on AWS" },
+        { "id": "d", "text": "AgentCore is only for enterprise customers, not chatbots" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "AgentCore is infrastructure, not a framework. It provides the platform services (runtime, memory, gateway, identity, etc.) that agents need to operate in production. You bring your own agent framework (LangGraph, Strands, etc.) and AgentCore handles the operational complexity.",
+      "concept": "AgentCore as infrastructure"
+    },
+    {
+      "id": "q6",
+      "type": "scenario",
+      "question": "Your agent needs to remember a user's preferences across multiple sessions over several weeks. Which type of memory handles this?",
+      "options": [
+        { "id": "a", "text": "Short-term memory - it persists for the duration needed" },
+        { "id": "b", "text": "Session memory - each session stores its own data" },
+        { "id": "c", "text": "Long-term memory - it persists across sessions and can be shared" },
+        { "id": "d", "text": "Context window - it stores user preferences" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Long-term memory persists across sessions and can store user preferences, past interactions, and learned information. Short-term memory only exists within a single session. The Memory service manages both types.",
+      "concept": "Memory types"
+    },
+    {
+      "id": "q7",
+      "type": "application",
+      "question": "You want to ensure your agent never performs financial transactions over $10,000 without human approval. Which AgentCore service enforces this rule?",
+      "options": [
+        { "id": "a", "text": "Identity - it controls permissions" },
+        { "id": "b", "text": "Policy - it enforces rules on what agents can do" },
+        { "id": "c", "text": "Gateway - it validates tool parameters" },
+        { "id": "d", "text": "Evaluations - it scores agent actions" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Policy service provides real-time enforcement of rules that control agent behavior. You can define policies in natural language (converted to Cedar policy language) to set boundaries like transaction limits, required approvals, or restricted actions.",
+      "concept": "Policy service purpose"
+    },
+    {
+      "id": "q8",
+      "type": "concept",
+      "question": "Which deployment model does AgentCore recommend for most use cases?",
+      "options": [
+        { "id": "a", "text": "Self-managed EC2 instances for maximum control" },
+        { "id": "b", "text": "Serverless - no infrastructure to manage, auto-scales, pay-per-use" },
+        { "id": "c", "text": "Kubernetes clusters for container orchestration" },
+        { "id": "d", "text": "On-premises deployment for data security" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "AgentCore recommends serverless deployment for most use cases. It requires no infrastructure management, auto-scales with demand, has pay-per-use pricing, and provides fast deployments. Container-based deployment is available when you need more control.",
+      "concept": "Deployment models"
+    }
+  ]
+}
