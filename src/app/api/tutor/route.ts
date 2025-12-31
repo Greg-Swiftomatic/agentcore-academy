@@ -105,9 +105,14 @@ For answering questions:
 `;
 
 export async function POST(request: NextRequest) {
+  console.log("[Tutor API] POST handler invoked");
+  
   try {
     // Check if API key is set
-    if (!process.env.OPENROUTER_API_KEY) {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    console.log("[Tutor API] API key present:", !!apiKey, "length:", apiKey?.length || 0);
+    
+    if (!apiKey) {
       console.error("OPENROUTER_API_KEY is not set");
       return new Response(
         JSON.stringify({ error: "AI tutor not configured - missing API key" }),
@@ -191,9 +196,19 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Tutor API error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : "";
+    console.error("Error details:", { message: errorMessage, stack: errorStack });
+    
+    return new Response(
+      JSON.stringify({ 
+        error: "Internal server error", 
+        details: errorMessage 
+      }), 
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
