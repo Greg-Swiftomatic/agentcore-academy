@@ -5,36 +5,49 @@ import { Logo } from "@/components/Logo";
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen grain flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center p-6 relative z-10">
+      {/* Decorative corners */}
+      <div className="fixed top-6 left-6 w-24 h-24 border-l border-t border-border-dashed" />
+      <div className="fixed top-6 right-6 w-24 h-24 border-r border-t border-border-dashed" />
+      <div className="fixed bottom-6 left-6 w-24 h-24 border-l border-b border-border-dashed" />
+      <div className="fixed bottom-6 right-6 w-24 h-24 border-r border-b border-border-dashed" />
+      
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <Link href="/">
+          <Link href="/" className="hover:opacity-90 transition-opacity">
             <Logo size="lg" />
           </Link>
         </div>
 
         {/* Sign In Card */}
-        <div className="card bg-bg-secondary border-border">
+        <div className="card">
+          {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-display font-semibold mb-2">
-              Welcome to AgentCore Academy
+            <span className="badge badge-cyan mb-4">
+              <span className="w-1.5 h-1.5 bg-cyan rounded-full animate-pulse" />
+              Authentication Required
+            </span>
+            <h1 className="font-display text-2xl text-text-primary mb-2">
+              Initialize Session
             </h1>
-            <p className="text-text-secondary">
-              Sign in to track your progress and access AI tutoring
+            <p className="text-text-secondary text-sm">
+              Connect your account to begin training
             </p>
           </div>
 
           {/* OAuth Buttons */}
-          <div className="space-y-3">
+          <div className="space-y-3 mb-8">
             {/* Google Sign In */}
             <button
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white text-gray-800 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white text-gray-800 font-body font-bold text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors relative group"
               onClick={() => {
                 // Will be connected to Amplify auth
                 console.log("Google sign in");
               }}
             >
+              {/* Corner cuts */}
+              <span className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-bp-primary border-l-[10px] border-l-transparent" />
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
@@ -58,12 +71,14 @@ export default function SignInPage() {
 
             {/* GitHub Sign In */}
             <button
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#24292e] text-white rounded-lg font-medium hover:bg-[#2f363d] transition-colors"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[#0d1117] border border-[#30363d] text-white font-body font-bold text-sm uppercase tracking-wider hover:bg-[#161b22] hover:border-cyan transition-colors relative group"
               onClick={() => {
                 // Will be connected to Amplify auth
                 console.log("GitHub sign in");
               }}
             >
+              {/* Corner cuts */}
+              <span className="absolute top-0 right-0 w-0 h-0 border-t-[10px] border-t-bp-primary border-l-[10px] border-l-transparent" />
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   fillRule="evenodd"
@@ -76,85 +91,57 @@ export default function SignInPage() {
           </div>
 
           {/* Divider */}
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border-subtle"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-bg-secondary text-text-muted">
-                Why sign in?
-              </span>
-            </div>
-          </div>
+          <div className="divider mb-8" />
 
           {/* Benefits */}
-          <ul className="space-y-3 text-sm text-text-secondary">
-            <li className="flex items-center gap-3">
-              <svg
-                className="w-5 h-5 text-success flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Save your progress across devices
-            </li>
-            <li className="flex items-center gap-3">
-              <svg
-                className="w-5 h-5 text-success flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              AI tutor remembers your learning context
-            </li>
-            <li className="flex items-center gap-3">
-              <svg
-                className="w-5 h-5 text-success flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Take notes and bookmark lessons
-            </li>
-            <li className="flex items-center gap-3">
-              <svg
-                className="w-5 h-5 text-success flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Track comprehension check results
-            </li>
-          </ul>
+          <div className="schematic-box" data-label="SYSTEM BENEFITS">
+            <ul className="space-y-3">
+              <li className="flex items-center gap-3 text-sm">
+                <div className="w-5 h-5 border border-success flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-success" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-text-secondary">Save your progress across devices</span>
+              </li>
+              <li className="flex items-center gap-3 text-sm">
+                <div className="w-5 h-5 border border-success flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-success" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-text-secondary">AI tutor remembers your learning context</span>
+              </li>
+              <li className="flex items-center gap-3 text-sm">
+                <div className="w-5 h-5 border border-success flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-success" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-text-secondary">Take notes and bookmark lessons</span>
+              </li>
+              <li className="flex items-center gap-3 text-sm">
+                <div className="w-5 h-5 border border-success flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3 h-3 text-success" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-text-secondary">Track comprehension check results</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Back Link */}
-        <div className="text-center mt-6">
+        <div className="text-center mt-8">
           <Link
             href="/"
-            className="text-text-muted text-sm hover:text-text-primary transition-colors"
+            className="text-text-muted text-sm hover:text-cyan transition-colors inline-flex items-center gap-2 group"
           >
-            ← Back to home
+            <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Return to home base
           </Link>
         </div>
       </div>

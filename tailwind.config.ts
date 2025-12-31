@@ -9,48 +9,50 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: {
+        // Blueprint palette
+        bp: {
+          deep: "var(--color-bg-deep)",
           primary: "var(--color-bg-primary)",
           secondary: "var(--color-bg-secondary)",
-          tertiary: "var(--color-bg-tertiary)",
           elevated: "var(--color-bg-elevated)",
         },
         text: {
           primary: "var(--color-text-primary)",
           secondary: "var(--color-text-secondary)",
           muted: "var(--color-text-muted)",
+          annotation: "var(--color-text-annotation)",
         },
-        accent: {
-          DEFAULT: "var(--color-accent)",
-          hover: "var(--color-accent-hover)",
-          muted: "var(--color-accent-muted)",
+        cyan: {
+          DEFAULT: "var(--color-cyan)",
+          glow: "var(--color-cyan-glow)",
+          muted: "var(--color-cyan-muted)",
+        },
+        orange: {
+          DEFAULT: "var(--color-orange)",
+          muted: "var(--color-orange-muted)",
         },
         border: {
           DEFAULT: "var(--color-border)",
           subtle: "var(--color-border-subtle)",
-        },
-        terminal: {
-          bg: "var(--color-terminal-bg)",
-          border: "var(--color-terminal-border)",
+          dashed: "var(--color-border-dashed)",
         },
         success: "var(--color-success)",
         warning: "var(--color-warning)",
         error: "var(--color-error)",
       },
       fontFamily: {
-        display: ["var(--font-display)", "monospace"],
-        body: ["var(--font-body)", "Georgia", "serif"],
-        mono: ["var(--font-mono)", "monospace"],
+        display: ["var(--font-display)", "sans-serif"],
+        body: ["var(--font-body)", "monospace"],
+        annotation: ["var(--font-annotation)", "cursive"],
       },
       animation: {
-        "fade-in": "fadeIn 250ms ease forwards",
-        "slide-up": "slideUp 400ms ease forwards",
-        "slide-in-right": "slideInRight 400ms ease forwards",
-        pulse: "pulse 2s ease-in-out infinite",
+        "fade-up": "fade-up 0.5s ease-out forwards",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "blink": "blink 1s step-end infinite",
       },
       boxShadow: {
-        glow: "0 0 20px rgba(255, 153, 0, 0.3)",
-        "glow-lg": "0 0 40px rgba(255, 153, 0, 0.4)",
+        glow: "0 0 20px var(--color-cyan-glow)",
+        "glow-lg": "0 0 40px var(--color-cyan-glow)",
       },
     },
   },

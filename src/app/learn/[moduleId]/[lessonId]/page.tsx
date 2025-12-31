@@ -105,11 +105,17 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   if (!currentModule || !lesson) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center relative z-10">
         <div className="text-center">
-          <h1 className="text-2xl font-display mb-4">Lesson not found</h1>
+          <div className="w-16 h-16 border border-dashed border-error mx-auto mb-6 flex items-center justify-center">
+            <svg className="w-8 h-8 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h1 className="font-display text-2xl text-text-primary mb-2">Module Not Found</h1>
+          <p className="text-text-muted mb-6">The requested training module could not be located.</p>
           <Link href="/curriculum" className="btn btn-primary">
-            Back to Curriculum
+            Return to Schematics
           </Link>
         </div>
       </div>
@@ -134,100 +140,67 @@ export default async function LessonPage({ params }: LessonPageProps) {
   const moduleIndex = curriculumData.modules.findIndex((m) => m.id === moduleId);
 
   return (
-    <div className="min-h-screen grain">
+    <div className="min-h-screen relative z-10">
       <Navigation user={mockUser} />
 
       {/* Top Navigation Bar */}
-      <div className="fixed top-16 left-0 right-0 z-40 bg-bg-secondary/80 backdrop-blur-xl border-b border-border-subtle">
+      <div className="fixed top-16 left-0 right-0 z-40 bg-bp-deep/95 backdrop-blur-md border-b border-border-subtle">
         <div className="max-w-screen-2xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm">
-              <Link
-                href="/curriculum"
-                className="text-text-muted hover:text-accent transition-colors"
-              >
+            <div className="flex items-center gap-2 text-xs uppercase tracking-wider">
+              <Link href="/curriculum" className="text-text-muted hover:text-cyan transition-colors">
                 Curriculum
               </Link>
-              <span className="text-text-muted">/</span>
-              <Link
-                href={`/learn/${moduleId}`}
-                className="text-text-muted hover:text-accent transition-colors"
-              >
+              <span className="text-border-dashed">/</span>
+              <Link href={`/learn/${moduleId}`} className="text-text-muted hover:text-cyan transition-colors">
                 Module {String(moduleIndex + 1).padStart(2, "0")}
               </Link>
-              <span className="text-text-muted">/</span>
-              <span className="text-text-primary font-medium truncate max-w-[200px]">
+              <span className="text-border-dashed">/</span>
+              <span className="text-cyan truncate max-w-[200px]">
                 {lesson.title}
               </span>
             </div>
 
             {/* Progress & Navigation */}
             <div className="flex items-center gap-4">
-              <span className="text-text-muted text-sm hidden sm:block">
-                Lesson {currentLessonIndex + 1} of {currentModule.lessons.length}
-              </span>
+              <div className="hidden sm:flex items-center gap-2 text-xs text-text-muted">
+                <span className="text-cyan font-bold">{currentLessonIndex + 1}</span>
+                <span>/</span>
+                <span>{currentModule.lessons.length}</span>
+              </div>
               <div className="flex items-center gap-2">
                 {prevLesson ? (
                   <Link
                     href={`/learn/${moduleId}/${prevLesson.id}`}
-                    className="btn btn-ghost p-2"
+                    className="w-8 h-8 border border-border-subtle hover:border-cyan flex items-center justify-center transition-colors group"
                     title={prevLesson.title}
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 19l-7-7 7-7"
-                      />
+                    <svg className="w-4 h-4 text-text-muted group-hover:text-cyan transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                   </Link>
                 ) : (
-                  <button className="btn btn-ghost p-2 opacity-30" disabled>
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 19l-7-7 7-7"
-                      />
+                  <div className="w-8 h-8 border border-border-subtle flex items-center justify-center opacity-30">
+                    <svg className="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
-                  </button>
+                  </div>
                 )}
                 {nextLesson ? (
                   <Link
                     href={`/learn/${moduleId}/${nextLesson.id}`}
-                    className="btn btn-primary p-2"
+                    className="btn btn-primary py-2 px-4 text-xs"
                     title={nextLesson.title}
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
+                    <span>Next</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </Link>
                 ) : (
-                  <Link href="/curriculum" className="btn btn-primary text-sm">
-                    Complete Module
+                  <Link href="/curriculum" className="btn btn-primary py-2 px-4 text-xs">
+                    Complete
                   </Link>
                 )}
               </div>
@@ -244,70 +217,49 @@ export default async function LessonPage({ params }: LessonPageProps) {
             <div className="max-w-3xl mx-auto px-8 py-8">
               {/* Lesson Header */}
               <div className="mb-8">
-                <span className="badge badge-accent mb-4">
-                  Module {String(moduleIndex + 1).padStart(2, "0")}
-                </span>
-                <h1 className="text-3xl mb-4">{lesson.title}</h1>
-                <p className="text-text-secondary text-lg">{lesson.description}</p>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="badge badge-cyan">
+                    Module {String(moduleIndex + 1).padStart(2, "0")}
+                  </span>
+                  <span className="h-px flex-1 bg-border-dashed" />
+                </div>
+                <h1 className="font-display text-3xl text-text-primary mb-3">{lesson.title}</h1>
+                <p className="text-text-secondary">{lesson.description}</p>
               </div>
 
               {/* Learning Objectives */}
-              <div className="bg-bg-secondary/50 border border-border-subtle rounded-lg p-6 mb-8">
-                <h3 className="font-display text-sm font-semibold text-accent mb-4 flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  Learning Objectives
-                </h3>
-                <ul className="space-y-2">
+              <div className="schematic-box mb-8" data-label="LEARNING OBJECTIVES">
+                <ul className="space-y-3">
                   {lessonData.objectives.map((obj, i) => (
-                    <li key={i} className="flex items-start gap-3 text-text-secondary">
-                      <span className="text-accent mt-1">•</span>
-                      {obj}
+                    <li key={i} className="flex items-start gap-3">
+                      <div className="w-5 h-5 border border-dashed border-cyan flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-cyan text-xs font-bold">{i + 1}</span>
+                      </div>
+                      <span className="text-text-secondary text-sm">{obj}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* Lesson Content */}
-              <div className="prose prose-invert prose-lg max-w-none">
+              <div className="prose-blueprint">
                 <LessonContent content={lessonData.content} />
               </div>
 
               {/* Bottom Navigation */}
-              <div className="mt-12 pt-8 border-t border-border-subtle">
+              <div className="mt-12 pt-8 border-t border-border-dashed">
                 <div className="flex items-center justify-between">
                   {prevLesson ? (
                     <Link
                       href={`/learn/${moduleId}/${prevLesson.id}`}
-                      className="group flex items-center gap-3 text-text-secondary hover:text-text-primary transition-colors"
+                      className="group flex items-center gap-3 text-text-muted hover:text-cyan transition-colors"
                     >
-                      <svg
-                        className="w-5 h-5 group-hover:-translate-x-1 transition-transform"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 19l-7-7 7-7"
-                        />
+                      <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                       </svg>
                       <div className="text-left">
-                        <p className="text-xs text-text-muted">Previous</p>
-                        <p className="font-display text-sm">{prevLesson.title}</p>
+                        <p className="text-xs uppercase tracking-wider opacity-60">Previous</p>
+                        <p className="font-body text-sm font-bold">{prevLesson.title}</p>
                       </div>
                     </Link>
                   ) : (
@@ -316,29 +268,22 @@ export default async function LessonPage({ params }: LessonPageProps) {
                   {nextLesson ? (
                     <Link
                       href={`/learn/${moduleId}/${nextLesson.id}`}
-                      className="group flex items-center gap-3 text-text-secondary hover:text-text-primary transition-colors"
+                      className="group flex items-center gap-3 text-text-muted hover:text-cyan transition-colors"
                     >
                       <div className="text-right">
-                        <p className="text-xs text-text-muted">Next</p>
-                        <p className="font-display text-sm">{nextLesson.title}</p>
+                        <p className="text-xs uppercase tracking-wider opacity-60">Next</p>
+                        <p className="font-body text-sm font-bold">{nextLesson.title}</p>
                       </div>
-                      <svg
-                        className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
+                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </Link>
                   ) : (
                     <Link href="/curriculum" className="btn btn-primary">
-                      Complete Module
+                      <span>Complete Module</span>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
                     </Link>
                   )}
                 </div>
@@ -347,7 +292,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
           </div>
 
           {/* Right: AI Tutor */}
-          <div className="w-[450px] flex-shrink-0 bg-terminal-bg">
+          <div className="w-[450px] flex-shrink-0 bg-bp-deep border-l border-border">
             <AITutor
               moduleId={moduleId}
               lessonId={lessonId}
@@ -361,7 +306,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
   );
 }
 
-// Simple markdown-like renderer for lesson content
+// Simple markdown-like renderer for lesson content with blueprint styling
 function LessonContent({ content }: { content: string }) {
   const lines = content.split("\n");
   const elements: React.ReactNode[] = [];
@@ -374,8 +319,11 @@ function LessonContent({ content }: { content: string }) {
     if (line.startsWith("```")) {
       if (inCodeBlock) {
         elements.push(
-          <pre key={i} className="my-6">
-            <code className={`language-${codeBlockLang}`}>
+          <pre key={i} className="my-6 bg-bp-deep border border-dashed border-border-dashed p-4 overflow-x-auto relative">
+            <span className="absolute -top-2 left-4 bg-bp-primary px-2 text-[10px] uppercase tracking-wider text-cyan">
+              {codeBlockLang || "code"}
+            </span>
+            <code className="text-text-primary text-sm font-body">
               {codeBlockContent.join("\n")}
             </code>
           </pre>
@@ -397,7 +345,8 @@ function LessonContent({ content }: { content: string }) {
     // Handle headings
     if (line.startsWith("# ")) {
       elements.push(
-        <h1 key={i} className="text-3xl font-display font-bold mt-8 mb-4">
+        <h1 key={i} className="font-display text-2xl text-text-primary mt-8 mb-4 flex items-center gap-3">
+          <span className="h-px w-8 bg-cyan" />
           {line.slice(2)}
         </h1>
       );
@@ -405,7 +354,7 @@ function LessonContent({ content }: { content: string }) {
     }
     if (line.startsWith("## ")) {
       elements.push(
-        <h2 key={i} className="text-2xl font-display font-semibold mt-8 mb-4">
+        <h2 key={i} className="font-display text-xl text-text-primary mt-8 mb-4">
           {line.slice(3)}
         </h2>
       );
@@ -413,7 +362,7 @@ function LessonContent({ content }: { content: string }) {
     }
     if (line.startsWith("### ")) {
       elements.push(
-        <h3 key={i} className="text-xl font-display font-semibold mt-6 mb-3">
+        <h3 key={i} className="font-display text-lg text-cyan mt-6 mb-3">
           {line.slice(4)}
         </h3>
       );
@@ -423,8 +372,9 @@ function LessonContent({ content }: { content: string }) {
     // Handle list items
     if (line.startsWith("- ")) {
       elements.push(
-        <li key={i} className="ml-6 text-text-secondary list-disc">
-          <InlineMarkdown text={line.slice(2)} />
+        <li key={i} className="ml-6 text-text-secondary list-none flex items-start gap-2 my-1">
+          <span className="text-cyan mt-1.5">▸</span>
+          <span><InlineMarkdown text={line.slice(2)} /></span>
         </li>
       );
       return;
@@ -434,8 +384,11 @@ function LessonContent({ content }: { content: string }) {
     const numberedMatch = line.match(/^(\d+)\. (.+)/);
     if (numberedMatch) {
       elements.push(
-        <li key={i} className="ml-6 text-text-secondary list-decimal">
-          <InlineMarkdown text={numberedMatch[2]} />
+        <li key={i} className="ml-6 text-text-secondary list-none flex items-start gap-3 my-2">
+          <span className="w-5 h-5 border border-cyan text-cyan text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+            {numberedMatch[1]}
+          </span>
+          <span><InlineMarkdown text={numberedMatch[2]} /></span>
         </li>
       );
       return;
@@ -460,7 +413,6 @@ function LessonContent({ content }: { content: string }) {
 
 // Handle inline markdown (bold, code, etc.)
 function InlineMarkdown({ text }: { text: string }) {
-  // Simple regex replacements for inline formatting
   const parts: React.ReactNode[] = [];
   let remaining = text;
   let key = 0;
@@ -470,12 +422,10 @@ function InlineMarkdown({ text }: { text: string }) {
     const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
     if (boldMatch && boldMatch.index !== undefined) {
       if (boldMatch.index > 0) {
-        parts.push(
-          <span key={key++}>{remaining.slice(0, boldMatch.index)}</span>
-        );
+        parts.push(<span key={key++}>{remaining.slice(0, boldMatch.index)}</span>);
       }
       parts.push(
-        <strong key={key++} className="text-text-primary font-semibold">
+        <strong key={key++} className="text-text-primary font-bold">
           {boldMatch[1]}
         </strong>
       );
@@ -487,11 +437,13 @@ function InlineMarkdown({ text }: { text: string }) {
     const codeMatch = remaining.match(/`(.+?)`/);
     if (codeMatch && codeMatch.index !== undefined) {
       if (codeMatch.index > 0) {
-        parts.push(
-          <span key={key++}>{remaining.slice(0, codeMatch.index)}</span>
-        );
+        parts.push(<span key={key++}>{remaining.slice(0, codeMatch.index)}</span>);
       }
-      parts.push(<code key={key++}>{codeMatch[1]}</code>);
+      parts.push(
+        <code key={key++} className="bg-cyan-muted text-cyan px-1.5 py-0.5 text-sm border border-border-subtle">
+          {codeMatch[1]}
+        </code>
+      );
       remaining = remaining.slice(codeMatch.index + codeMatch[0].length);
       continue;
     }

@@ -16,16 +16,19 @@ function NavLink({ href, children, isActive }: NavLinkProps) {
     <Link
       href={href}
       className={`
-        font-display text-sm font-medium px-4 py-2 rounded-md
-        transition-all duration-150
+        font-body text-xs font-bold uppercase tracking-widest px-4 py-2
+        transition-all duration-150 relative
         ${
           isActive
-            ? "text-accent bg-accent-muted"
-            : "text-text-secondary hover:text-text-primary hover:bg-bg-tertiary"
+            ? "text-cyan"
+            : "text-text-muted hover:text-cyan"
         }
       `}
     >
       {children}
+      {isActive && (
+        <span className="absolute bottom-0 left-4 right-4 h-px bg-cyan shadow-glow" />
+      )}
     </Link>
   );
 }
@@ -46,16 +49,17 @@ export function Navigation({ user }: NavigationProps) {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-bg-primary/80 backdrop-blur-xl border-b border-border-subtle">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-bp-deep/90 backdrop-blur-md border-b border-border-subtle">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="hover:opacity-90 transition-opacity">
+          <Link href="/" className="hover:opacity-90 transition-opacity relative group">
             <Logo size="sm" />
+            <span className="absolute -bottom-1 left-0 w-0 h-px bg-cyan transition-all duration-300 group-hover:w-full" />
           </Link>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center">
             {user ? (
               <>
                 <NavLink href="/dashboard" isActive={isActive("/dashboard")}>
@@ -83,38 +87,47 @@ export function Navigation({ user }: NavigationProps) {
           {/* Auth Section */}
           <div className="flex items-center gap-4">
             {user ? (
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/settings"
-                  className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                >
-                  {user.avatarUrl ? (
+              <Link
+                href="/settings"
+                className="flex items-center gap-3 group"
+              >
+                {user.avatarUrl ? (
+                  <div className="relative">
                     <Image
                       src={user.avatarUrl}
                       alt={user.name || "User"}
                       width={32}
                       height={32}
-                      className="rounded-full border border-border"
+                      className="border border-border group-hover:border-cyan transition-colors"
                     />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-accent-muted flex items-center justify-center">
-                      <span className="font-display text-sm text-accent">
-                        {user.name?.[0] || "U"}
-                      </span>
-                    </div>
-                  )}
-                </Link>
-              </div>
+                    <span className="absolute -top-px -right-px w-2 h-2 bg-success" />
+                  </div>
+                ) : (
+                  <div className="w-8 h-8 border border-border bg-bp-secondary flex items-center justify-center group-hover:border-cyan transition-colors">
+                    <span className="font-body text-xs text-cyan font-bold">
+                      {user.name?.[0] || "U"}
+                    </span>
+                  </div>
+                )}
+              </Link>
             ) : (
-              <Link
-                href="/auth/signin"
-                className="btn btn-primary text-sm"
-              >
-                Get Started
+              <Link href="/auth/signin" className="btn btn-primary">
+                <span>Initialize</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
               </Link>
             )}
           </div>
         </div>
+      </div>
+
+      {/* Scanline effect on hover */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-0 hover:opacity-100 transition-opacity">
+        <div 
+          className="absolute inset-0 bg-gradient-to-b from-cyan/5 to-transparent"
+          style={{ height: '2px', animation: 'scanline 3s linear infinite' }}
+        />
       </div>
     </nav>
   );
