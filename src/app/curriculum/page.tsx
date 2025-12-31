@@ -1,40 +1,33 @@
+"use client";
+
 import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
+import { useProgress } from "@/hooks/useProgress";
 import curriculumData from "@/content/modules/curriculum.json";
-
-// Mock progress data - replace with real data
-const mockModuleProgress: Record<string, { status: string; progress: number }> = {
-  "01-introduction": { status: "completed", progress: 100 },
-  "02-core-services": { status: "in_progress", progress: 35 },
-  "03-agent-patterns": { status: "not_started", progress: 0 },
-  "04-hands-on-build": { status: "not_started", progress: 0 },
-  "05-security-iam": { status: "not_started", progress: 0 },
-  "06-operations": { status: "not_started", progress: 0 },
-  "07-advanced-topics": { status: "not_started", progress: 0 },
-  "08-deployment": { status: "not_started", progress: 0 },
-};
 
 function ModuleBlueprint({
   module,
   index,
-  progress,
+  status,
+  progressPercent,
   isUnlocked,
 }: {
   module: (typeof curriculumData.modules)[0];
   index: number;
-  progress: { status: string; progress: number };
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  progressPercent: number;
   isUnlocked: boolean;
 }) {
   const statusColors = {
-    completed: "border-success",
-    in_progress: "border-cyan",
-    not_started: "border-border-subtle",
+    COMPLETED: "border-success",
+    IN_PROGRESS: "border-cyan",
+    NOT_STARTED: "border-border-subtle",
   };
 
   const nodeColor = {
-    completed: "bg-success border-success",
-    in_progress: "bg-cyan border-cyan animate-pulse-glow",
-    not_started: "bg-bp-primary border-border-dashed",
+    COMPLETED: "bg-success border-success",
+    IN_PROGRESS: "bg-cyan border-cyan animate-pulse-glow",
+    NOT_STARTED: "bg-bp-primary border-border-dashed",
   };
 
   return (
@@ -44,16 +37,16 @@ function ModuleBlueprint({
         <div className="absolute left-[19px] top-12 bottom-0 w-px border-l border-dashed border-border-dashed" />
       )}
       
-      <div className={`card ${statusColors[progress.status as keyof typeof statusColors]} transition-all ${isUnlocked ? "hover:border-cyan" : ""}`}>
+      <div className={`card ${statusColors[status]} transition-all ${isUnlocked ? "hover:border-cyan" : ""}`}>
         <div className="flex gap-6">
           {/* Status node */}
           <div className="flex flex-col items-center">
-            <div className={`node w-10 h-10 ${nodeColor[progress.status as keyof typeof nodeColor]} flex items-center justify-center`}>
-              {progress.status === "completed" ? (
+            <div className={`node w-10 h-10 ${nodeColor[status]} flex items-center justify-center`}>
+              {status === "COMPLETED" ? (
                 <svg className="w-5 h-5 text-bp-deep" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-              ) : progress.status === "in_progress" ? (
+              ) : status === "IN_PROGRESS" ? (
                 <div className="w-3 h-3 bg-bp-deep" />
               ) : (
                 <span className="font-body text-xs font-bold text-text-muted">
@@ -72,10 +65,10 @@ function ModuleBlueprint({
                   <span className="text-cyan text-xs font-bold uppercase tracking-widest">
                     Module {String(index + 1).padStart(2, "0")}
                   </span>
-                  {progress.status === "completed" && (
+                  {status === "COMPLETED" && (
                     <span className="badge badge-success text-[10px]">Verified</span>
                   )}
-                  {progress.status === "in_progress" && (
+                  {status === "IN_PROGRESS" && (
                     <span className="badge badge-cyan text-[10px]">
                       <span className="w-1 h-1 bg-cyan rounded-full animate-pulse" />
                       Active
@@ -116,14 +109,14 @@ function ModuleBlueprint({
             </div>
 
             {/* Progress bar */}
-            {progress.status !== "not_started" && (
+            {status !== "NOT_STARTED" && (
               <div className="mb-4">
                 <div className="flex justify-between text-xs mb-2">
                   <span className="text-text-muted uppercase tracking-wider">Progress</span>
-                  <span className="text-cyan font-bold">{progress.progress}%</span>
+                  <span className="text-cyan font-bold">{progressPercent}%</span>
                 </div>
                 <div className="progress-bar">
-                  <div className="progress-bar-fill" style={{ width: `${progress.progress}%` }} />
+                  <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }} />
                 </div>
               </div>
             )}
@@ -133,9 +126,9 @@ function ModuleBlueprint({
               <div className="space-y-0 divide-y divide-border-subtle">
                 {module.lessons.map((lesson, lessonIndex) => {
                   const lessonCompleted =
-                    progress.status === "completed" ||
-                    (progress.status === "in_progress" &&
-                      (lessonIndex / module.lessons.length) * 100 < progress.progress);
+                    status === "COMPLETED" ||
+                    (status === "IN_PROGRESS" &&
+                      (lessonIndex / module.lessons.length) * 100 < progressPercent);
 
                   return (
                     <Link
@@ -196,21 +189,18 @@ function ModuleBlueprint({
 }
 
 export default function CurriculumPage() {
+  const { getModuleStatus, getModuleProgressPercent, completedModules, totalModules, isLoading } = useProgress();
+
   // Calculate which modules are unlocked based on prerequisites
   const isModuleUnlocked = (moduleIndex: number): boolean => {
     if (moduleIndex === 0) return true;
     const prevModule = curriculumData.modules[moduleIndex - 1];
-    const prevProgress = mockModuleProgress[prevModule.id];
-    return prevProgress?.status === "completed";
+    const prevStatus = getModuleStatus(prevModule.id);
+    return prevStatus === "COMPLETED";
   };
 
   // Calculate total progress
-  const completedModules = Object.values(mockModuleProgress).filter(
-    (p) => p.status === "completed"
-  ).length;
-  const totalProgress = Math.round(
-    (completedModules / curriculumData.modules.length) * 100
-  );
+  const totalProgress = Math.round((completedModules / totalModules) * 100);
 
   return (
     <div className="min-h-screen relative z-10">
@@ -243,7 +233,7 @@ export default function CurriculumPage() {
                 <div className="text-right">
                   <p className="text-text-muted text-xs uppercase tracking-wider">System Progress</p>
                   <p className="font-display text-2xl text-cyan glow-cyan">
-                    {totalProgress}%
+                    {isLoading ? "..." : `${totalProgress}%`}
                   </p>
                 </div>
                 <div className="w-16 h-16 relative">
@@ -294,20 +284,34 @@ export default function CurriculumPage() {
             </div>
           </div>
 
+          {/* Loading state */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex items-center gap-3 text-text-muted">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Loading progress...
+              </div>
+            </div>
+          )}
+
           {/* Modules List */}
-          <div className="space-y-6">
-            {curriculumData.modules.map((module, index) => (
-              <ModuleBlueprint
-                key={module.id}
-                module={module}
-                index={index}
-                progress={
-                  mockModuleProgress[module.id] || { status: "not_started", progress: 0 }
-                }
-                isUnlocked={isModuleUnlocked(index)}
-              />
-            ))}
-          </div>
+          {!isLoading && (
+            <div className="space-y-6">
+              {curriculumData.modules.map((module, index) => (
+                <ModuleBlueprint
+                  key={module.id}
+                  module={module}
+                  index={index}
+                  status={getModuleStatus(module.id)}
+                  progressPercent={getModuleProgressPercent(module.id)}
+                  isUnlocked={isModuleUnlocked(index)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>
