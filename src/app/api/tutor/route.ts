@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { streamTutorResponse, TutorMessage, TutorContext } from "@/lib/bedrock";
+import { streamTutorResponse, TutorMessage, TutorContext } from "@/lib/openrouter";
 import { loadLessonKnowledge } from "@/lib/knowledge-base";
 
 export const runtime = "nodejs";
