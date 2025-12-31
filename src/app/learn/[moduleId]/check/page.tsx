@@ -1,19 +1,16 @@
 "use client";
 
-import { use } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Navigation } from "@/components/Navigation";
 import { ComprehensionCheck } from "@/components/ComprehensionCheck";
 import { useProgress } from "@/hooks/useProgress";
 import { useAuth } from "@/lib/auth";
 import curriculumData from "@/content/modules/curriculum.json";
 
-export default function CheckPage({
-  params,
-}: {
-  params: Promise<{ moduleId: string }>;
-}) {
-  const { moduleId } = use(params);
+export default function CheckPage() {
+  const params = useParams();
+  const moduleId = params.moduleId as string;
   const { user } = useAuth();
   const { markModuleComplete, refreshProgress } = useProgress();
 
