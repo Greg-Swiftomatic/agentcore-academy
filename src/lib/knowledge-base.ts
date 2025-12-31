@@ -81,7 +81,10 @@ const LESSON_TO_KB_FILES: Record<string, string[]> = {
  */
 function getKnowledgeBasePath(): string {
   // In Next.js, we need to resolve from the project root
-  return path.join(process.cwd(), "src", "content", "knowledge-base");
+  const basePath = path.join(process.cwd(), "src", "content", "knowledge-base");
+  console.log("[KnowledgeBase] Base path:", basePath);
+  console.log("[KnowledgeBase] CWD:", process.cwd());
+  return basePath;
 }
 
 /**
@@ -92,10 +95,13 @@ async function loadKnowledgeBaseFile(
 ): Promise<string | null> {
   try {
     const fullPath = path.join(getKnowledgeBasePath(), relativePath);
+    console.log("[KnowledgeBase] Loading file:", fullPath);
     const content = await fs.readFile(fullPath, "utf-8");
+    console.log("[KnowledgeBase] Loaded file successfully, length:", content.length);
     return content;
   } catch (error) {
-    console.warn(`Could not load knowledge base file: ${relativePath}`, error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.warn(`[KnowledgeBase] Could not load file: ${relativePath} - ${errorMessage}`);
     return null;
   }
 }
@@ -108,8 +114,10 @@ async function loadKnowledgeBaseDirectory(
 ): Promise<string | null> {
   try {
     const dirPath = path.join(getKnowledgeBasePath(), dirName);
+    console.log("[KnowledgeBase] Loading directory:", dirPath);
     const files = await fs.readdir(dirPath);
     const mdFiles = files.filter((f) => f.endsWith(".md"));
+    console.log("[KnowledgeBase] Found files:", mdFiles);
 
     const contents: string[] = [];
     for (const file of mdFiles) {
@@ -121,7 +129,8 @@ async function loadKnowledgeBaseDirectory(
 
     return contents.length > 0 ? contents.join("\n\n---\n\n") : null;
   } catch (error) {
-    console.warn(`Could not load knowledge base directory: ${dirName}`, error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.warn(`[KnowledgeBase] Could not load directory: ${dirName} - ${errorMessage}`);
     return null;
   }
 }
@@ -137,10 +146,13 @@ export async function loadLessonKnowledge(
   moduleId: string,
   lessonId: string
 ): Promise<string> {
+  console.log("[KnowledgeBase] Loading knowledge for:", { moduleId, lessonId });
   const contents: string[] = [];
 
   // First, try to load lesson-specific files
   const lessonFiles = LESSON_TO_KB_FILES[lessonId];
+  console.log("[KnowledgeBase] Lesson files mapping:", lessonFiles);
+  
   if (lessonFiles) {
     for (const file of lessonFiles) {
       const content = await loadKnowledgeBaseFile(file);
@@ -152,6 +164,7 @@ export async function loadLessonKnowledge(
 
   // If no lesson-specific files found, fall back to module directory
   if (contents.length === 0) {
+    console.log("[KnowledgeBase] No lesson files found, trying module directory");
     const moduleDirs = MODULE_TO_KB_MAP[moduleId];
     if (moduleDirs) {
       for (const dir of moduleDirs) {
@@ -165,9 +178,11 @@ export async function loadLessonKnowledge(
 
   // Return combined content or a fallback message
   if (contents.length === 0) {
+    console.log("[KnowledgeBase] No content found, using fallback");
     return "No specific knowledge base content available for this lesson. Use your general knowledge of AI agents and AWS services to help the student.";
   }
 
+  console.log("[KnowledgeBase] Loaded content pieces:", contents.length);
   return contents.join("\n\n---\n\n");
 }
 
