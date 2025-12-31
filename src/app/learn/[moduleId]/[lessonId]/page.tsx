@@ -1,0 +1,505 @@
+import Link from "next/link";
+import { Navigation } from "@/components/Navigation";
+import { AITutor } from "@/components/AITutor";
+import curriculumData from "@/content/modules/curriculum.json";
+
+const mockUser = {
+  name: "Developer",
+  avatarUrl: undefined,
+};
+
+// Mock lesson content - in production this would come from MDX files
+const mockLessonContent: Record<string, { content: string; objectives: string[] }> = {
+  "01-what-is-agentcore": {
+    objectives: [
+      "Understand what AgentCore is and its purpose",
+      "Learn where AgentCore fits in the AWS AI ecosystem",
+      "Identify key use cases for AI agents",
+    ],
+    content: `# What is Amazon Bedrock AgentCore?
+
+**Amazon Bedrock AgentCore** is a fully managed service that helps you build, deploy, and scale AI agents on AWS. It provides the infrastructure and tools needed to create agents that can reason, plan, and take actions to accomplish tasks.
+
+## Why AgentCore?
+
+Traditional AI applications are limited to simple request-response patterns. You ask a question, you get an answer. But real-world tasks often require multiple steps, tool usage, and complex reasoning.
+
+**Agents** bridge this gap. An agent can:
+- Break down complex tasks into steps
+- Decide which tools to use
+- Execute actions and handle results
+- Maintain context across interactions
+
+## Key Components
+
+AgentCore provides several core capabilities:
+
+### 1. Agent Runtime
+The execution environment where your agents run. It handles:
+- Message routing
+- Tool orchestration
+- State management
+- Error handling
+
+### 2. Tool Integration
+Define custom tools that your agent can use:
+- API calls
+- Database queries
+- File operations
+- External service integration
+
+### 3. Memory Management
+Agents need to remember context:
+- Conversation history
+- User preferences
+- Task state
+- Long-term knowledge
+
+## Where Does AgentCore Fit?
+
+\`\`\`
+┌─────────────────────────────────────────┐
+│           Your Application              │
+├─────────────────────────────────────────┤
+│         Amazon Bedrock AgentCore        │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐   │
+│  │ Runtime │ │  Tools  │ │ Memory  │   │
+│  └─────────┘ └─────────┘ └─────────┘   │
+├─────────────────────────────────────────┤
+│           Amazon Bedrock                │
+│      (Foundation Models: Claude)        │
+├─────────────────────────────────────────┤
+│              AWS Cloud                  │
+│    (Lambda, DynamoDB, S3, etc.)        │
+└─────────────────────────────────────────┘
+\`\`\`
+
+AgentCore sits between your application and the underlying AI models. It handles the complexity of orchestrating multi-step tasks while you focus on defining what your agent should do.
+
+## Real-World Use Cases
+
+1. **Customer Support Agents**: Handle complex support tickets, look up order information, process returns
+2. **Research Assistants**: Search documents, summarize findings, generate reports
+3. **DevOps Automation**: Monitor systems, diagnose issues, execute remediation steps
+4. **Data Analysis**: Query databases, perform calculations, visualize results
+
+## Next Steps
+
+Now that you understand what AgentCore is and why it exists, let's dive into the architecture and see how all the pieces fit together.`,
+  },
+};
+
+interface LessonPageProps {
+  params: Promise<{
+    moduleId: string;
+    lessonId: string;
+  }>;
+}
+
+export default async function LessonPage({ params }: LessonPageProps) {
+  const { moduleId, lessonId } = await params;
+
+  // Find the module and lesson
+  const currentModule = curriculumData.modules.find((m) => m.id === moduleId);
+  const lesson = currentModule?.lessons.find((l) => l.id === lessonId);
+
+  if (!currentModule || !lesson) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-display mb-4">Lesson not found</h1>
+          <Link href="/curriculum" className="btn btn-primary">
+            Back to Curriculum
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Find current lesson index for navigation
+  const currentLessonIndex = currentModule.lessons.findIndex((l) => l.id === lessonId);
+  const prevLesson = currentLessonIndex > 0 ? currentModule.lessons[currentLessonIndex - 1] : null;
+  const nextLesson =
+    currentLessonIndex < currentModule.lessons.length - 1
+      ? currentModule.lessons[currentLessonIndex + 1]
+      : null;
+
+  // Get lesson content (mock for now)
+  const lessonData = mockLessonContent[lessonId] || {
+    objectives: ["Complete this lesson"],
+    content: `# ${lesson.title}\n\nLesson content coming soon...`,
+  };
+
+  // Find module index
+  const moduleIndex = curriculumData.modules.findIndex((m) => m.id === moduleId);
+
+  return (
+    <div className="min-h-screen grain">
+      <Navigation user={mockUser} />
+
+      {/* Top Navigation Bar */}
+      <div className="fixed top-16 left-0 right-0 z-40 bg-bg-secondary/80 backdrop-blur-xl border-b border-border-subtle">
+        <div className="max-w-screen-2xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-sm">
+              <Link
+                href="/curriculum"
+                className="text-text-muted hover:text-accent transition-colors"
+              >
+                Curriculum
+              </Link>
+              <span className="text-text-muted">/</span>
+              <Link
+                href={`/learn/${moduleId}`}
+                className="text-text-muted hover:text-accent transition-colors"
+              >
+                Module {String(moduleIndex + 1).padStart(2, "0")}
+              </Link>
+              <span className="text-text-muted">/</span>
+              <span className="text-text-primary font-medium truncate max-w-[200px]">
+                {lesson.title}
+              </span>
+            </div>
+
+            {/* Progress & Navigation */}
+            <div className="flex items-center gap-4">
+              <span className="text-text-muted text-sm hidden sm:block">
+                Lesson {currentLessonIndex + 1} of {currentModule.lessons.length}
+              </span>
+              <div className="flex items-center gap-2">
+                {prevLesson ? (
+                  <Link
+                    href={`/learn/${moduleId}/${prevLesson.id}`}
+                    className="btn btn-ghost p-2"
+                    title={prevLesson.title}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                  </Link>
+                ) : (
+                  <button className="btn btn-ghost p-2 opacity-30" disabled>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                  </button>
+                )}
+                {nextLesson ? (
+                  <Link
+                    href={`/learn/${moduleId}/${nextLesson.id}`}
+                    className="btn btn-primary p-2"
+                    title={nextLesson.title}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </Link>
+                ) : (
+                  <Link href="/curriculum" className="btn btn-primary text-sm">
+                    Complete Module
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - Split View */}
+      <main className="pt-32 h-screen">
+        <div className="h-[calc(100vh-8rem)] flex">
+          {/* Left: Lesson Content */}
+          <div className="flex-1 overflow-y-auto border-r border-border-subtle">
+            <div className="max-w-3xl mx-auto px-8 py-8">
+              {/* Lesson Header */}
+              <div className="mb-8">
+                <span className="badge badge-accent mb-4">
+                  Module {String(moduleIndex + 1).padStart(2, "0")}
+                </span>
+                <h1 className="text-3xl mb-4">{lesson.title}</h1>
+                <p className="text-text-secondary text-lg">{lesson.description}</p>
+              </div>
+
+              {/* Learning Objectives */}
+              <div className="bg-bg-secondary/50 border border-border-subtle rounded-lg p-6 mb-8">
+                <h3 className="font-display text-sm font-semibold text-accent mb-4 flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Learning Objectives
+                </h3>
+                <ul className="space-y-2">
+                  {lessonData.objectives.map((obj, i) => (
+                    <li key={i} className="flex items-start gap-3 text-text-secondary">
+                      <span className="text-accent mt-1">•</span>
+                      {obj}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Lesson Content */}
+              <div className="prose prose-invert prose-lg max-w-none">
+                <LessonContent content={lessonData.content} />
+              </div>
+
+              {/* Bottom Navigation */}
+              <div className="mt-12 pt-8 border-t border-border-subtle">
+                <div className="flex items-center justify-between">
+                  {prevLesson ? (
+                    <Link
+                      href={`/learn/${moduleId}/${prevLesson.id}`}
+                      className="group flex items-center gap-3 text-text-secondary hover:text-text-primary transition-colors"
+                    >
+                      <svg
+                        className="w-5 h-5 group-hover:-translate-x-1 transition-transform"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 19l-7-7 7-7"
+                        />
+                      </svg>
+                      <div className="text-left">
+                        <p className="text-xs text-text-muted">Previous</p>
+                        <p className="font-display text-sm">{prevLesson.title}</p>
+                      </div>
+                    </Link>
+                  ) : (
+                    <div />
+                  )}
+                  {nextLesson ? (
+                    <Link
+                      href={`/learn/${moduleId}/${nextLesson.id}`}
+                      className="group flex items-center gap-3 text-text-secondary hover:text-text-primary transition-colors"
+                    >
+                      <div className="text-right">
+                        <p className="text-xs text-text-muted">Next</p>
+                        <p className="font-display text-sm">{nextLesson.title}</p>
+                      </div>
+                      <svg
+                        className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </Link>
+                  ) : (
+                    <Link href="/curriculum" className="btn btn-primary">
+                      Complete Module
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: AI Tutor */}
+          <div className="w-[450px] flex-shrink-0 bg-terminal-bg">
+            <AITutor
+              moduleId={moduleId}
+              lessonId={lessonId}
+              moduleContext={`Module: ${currentModule.title}\nDescription: ${currentModule.description}`}
+              lessonContent={lessonData.content}
+            />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// Simple markdown-like renderer for lesson content
+function LessonContent({ content }: { content: string }) {
+  const lines = content.split("\n");
+  const elements: React.ReactNode[] = [];
+  let inCodeBlock = false;
+  let codeBlockContent: string[] = [];
+  let codeBlockLang = "";
+
+  lines.forEach((line, i) => {
+    // Handle code blocks
+    if (line.startsWith("```")) {
+      if (inCodeBlock) {
+        elements.push(
+          <pre key={i} className="my-6">
+            <code className={`language-${codeBlockLang}`}>
+              {codeBlockContent.join("\n")}
+            </code>
+          </pre>
+        );
+        codeBlockContent = [];
+        inCodeBlock = false;
+      } else {
+        inCodeBlock = true;
+        codeBlockLang = line.slice(3) || "text";
+      }
+      return;
+    }
+
+    if (inCodeBlock) {
+      codeBlockContent.push(line);
+      return;
+    }
+
+    // Handle headings
+    if (line.startsWith("# ")) {
+      elements.push(
+        <h1 key={i} className="text-3xl font-display font-bold mt-8 mb-4">
+          {line.slice(2)}
+        </h1>
+      );
+      return;
+    }
+    if (line.startsWith("## ")) {
+      elements.push(
+        <h2 key={i} className="text-2xl font-display font-semibold mt-8 mb-4">
+          {line.slice(3)}
+        </h2>
+      );
+      return;
+    }
+    if (line.startsWith("### ")) {
+      elements.push(
+        <h3 key={i} className="text-xl font-display font-semibold mt-6 mb-3">
+          {line.slice(4)}
+        </h3>
+      );
+      return;
+    }
+
+    // Handle list items
+    if (line.startsWith("- ")) {
+      elements.push(
+        <li key={i} className="ml-6 text-text-secondary list-disc">
+          <InlineMarkdown text={line.slice(2)} />
+        </li>
+      );
+      return;
+    }
+
+    // Handle numbered lists
+    const numberedMatch = line.match(/^(\d+)\. (.+)/);
+    if (numberedMatch) {
+      elements.push(
+        <li key={i} className="ml-6 text-text-secondary list-decimal">
+          <InlineMarkdown text={numberedMatch[2]} />
+        </li>
+      );
+      return;
+    }
+
+    // Handle empty lines
+    if (line.trim() === "") {
+      elements.push(<div key={i} className="h-4" />);
+      return;
+    }
+
+    // Regular paragraphs
+    elements.push(
+      <p key={i} className="text-text-secondary leading-relaxed mb-4">
+        <InlineMarkdown text={line} />
+      </p>
+    );
+  });
+
+  return <>{elements}</>;
+}
+
+// Handle inline markdown (bold, code, etc.)
+function InlineMarkdown({ text }: { text: string }) {
+  // Simple regex replacements for inline formatting
+  const parts: React.ReactNode[] = [];
+  let remaining = text;
+  let key = 0;
+
+  while (remaining) {
+    // Bold
+    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+    if (boldMatch && boldMatch.index !== undefined) {
+      if (boldMatch.index > 0) {
+        parts.push(
+          <span key={key++}>{remaining.slice(0, boldMatch.index)}</span>
+        );
+      }
+      parts.push(
+        <strong key={key++} className="text-text-primary font-semibold">
+          {boldMatch[1]}
+        </strong>
+      );
+      remaining = remaining.slice(boldMatch.index + boldMatch[0].length);
+      continue;
+    }
+
+    // Inline code
+    const codeMatch = remaining.match(/`(.+?)`/);
+    if (codeMatch && codeMatch.index !== undefined) {
+      if (codeMatch.index > 0) {
+        parts.push(
+          <span key={key++}>{remaining.slice(0, codeMatch.index)}</span>
+        );
+      }
+      parts.push(<code key={key++}>{codeMatch[1]}</code>);
+      remaining = remaining.slice(codeMatch.index + codeMatch[0].length);
+      continue;
+    }
+
+    // No more matches
+    parts.push(<span key={key++}>{remaining}</span>);
+    break;
+  }
+
+  return <>{parts}</>;
+}
