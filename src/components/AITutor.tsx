@@ -110,8 +110,16 @@ What would you like to explore first?`,
                 fullContent += parsed.text;
                 setStreamingContent(fullContent);
               }
-            } catch {
-              // Ignore parse errors
+              if (parsed.error) {
+                console.error("API Error:", parsed.error);
+                throw new Error(parsed.error);
+              }
+            } catch (parseError) {
+              // If it's our thrown error, re-throw it
+              if (parseError instanceof Error && parseError.message !== "Unexpected end of JSON input") {
+                throw parseError;
+              }
+              // Otherwise ignore parse errors
             }
           }
         }
@@ -181,7 +189,7 @@ What would you like to explore first?`,
             </div>
           </div>
           <span className="badge badge-cyan text-[10px]">
-            Claude
+            GLM-4
           </span>
         </div>
       </div>

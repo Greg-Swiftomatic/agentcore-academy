@@ -106,8 +106,22 @@ For answering questions:
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if API key is set
+    if (!process.env.OPENROUTER_API_KEY) {
+      console.error("OPENROUTER_API_KEY is not set");
+      return new Response(
+        JSON.stringify({ error: "AI tutor not configured - missing API key" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
     const body: TutorRequest = await request.json();
     const { messages, moduleId, lessonId, context } = body;
+
+    console.log("[Tutor API] Request received:", { moduleId, lessonId, messageCount: messages?.length });
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: "Invalid messages" }), {
@@ -157,9 +171,10 @@ export async function POST(request: NextRequest) {
           controller.close();
         } catch (error) {
           console.error("Streaming error:", error);
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
           controller.enqueue(
             encoder.encode(
-              `data: ${JSON.stringify({ error: "Stream error" })}\n\n`
+              `data: ${JSON.stringify({ error: errorMessage })}\n\n`
             )
           );
           controller.close();
