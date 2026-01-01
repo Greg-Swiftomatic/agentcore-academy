@@ -76,7 +76,7 @@ function ModuleCard({
           {title}
         </h4>
         <p className="text-text-muted text-xs mt-0.5">
-          {lessons} modules · {duration}
+          {lessons} lessons · {duration}
         </p>
       </div>
       
@@ -124,18 +124,36 @@ export default function HomePage() {
               <span className="block text-cyan glow-cyan">AI Agents</span>
             </h1>
             
-            {/* Annotation */}
             <div className="flex justify-center mb-8">
               <span className="annotation text-2xl">
-                master the blueprints
+                from zero to deployed agent
               </span>
             </div>
 
             {/* Subheadline */}
             <p className="text-center text-text-secondary max-w-xl mx-auto mb-12 leading-relaxed">
               Deep, systematic knowledge of Amazon Bedrock AgentCore.
-              Structured curriculum with AI tutoring that adapts to your learning.
+              Build a real, deployable agent by the end of the course.
             </p>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-12">
+              <div className="text-center p-4 border border-border-dashed">
+                <div className="font-display text-3xl text-cyan mb-1">9</div>
+                <div className="text-xs text-text-muted uppercase tracking-wider">Modules</div>
+              </div>
+              <div className="text-center p-4 border border-border-dashed">
+                <div className="font-display text-3xl text-cyan mb-1">30</div>
+                <div className="text-xs text-text-muted uppercase tracking-wider">Lessons</div>
+              </div>
+              <div className="text-center p-4 border border-border-dashed">
+                <div className="font-display text-3xl text-cyan mb-1">7</div>
+                <div className="text-xs text-text-muted uppercase tracking-wider">Exercises</div>
+              </div>
+              <div className="text-center p-4 border border-border-dashed">
+                <div className="font-display text-3xl text-cyan mb-1">1</div>
+                <div className="text-xs text-text-muted uppercase tracking-wider">Capstone</div>
+              </div>
+            </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
@@ -197,33 +215,33 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FeatureCard
               number="01"
-              title="Structured Curriculum"
-              description="8 modules from fundamentals to production deployment. Sequential prerequisites ensure solid foundations."
+              title="9-Module Curriculum"
+              description="From fundamentals to capstone project. Sequential prerequisites ensure you build on solid foundations."
             />
             <FeatureCard
               number="02"
-              title="AI Tutor System"
-              description="Context-aware explanations that adapt to your level. Ask questions anytime, get precise answers."
+              title="Active AI Tutor"
+              description="Not just Q&A - your tutor quizzes you, reviews your code, and provides exercise feedback."
             />
             <FeatureCard
               number="03"
-              title="Comprehension Checks"
-              description="Verify understanding before advancing. Questions test real comprehension, not memorization."
+              title="Hands-On Exercises"
+              description="7 practical exercises that build toward your capstone. Each module contributes to your final project."
             />
             <FeatureCard
               number="04"
-              title="Production Code"
-              description="Learn from official AWS samples. Every concept illustrated with deployment-ready examples."
+              title="Capstone Project"
+              description="Build and deploy a real agent to AgentCore. Choose from 4 project types: support bot, research assistant, data analyst, or productivity agent."
             />
             <FeatureCard
               number="05"
-              title="Hands-On Building"
-              description="Construct a working agent by Module 4. Security and operations covered in depth."
+              title="Production Patterns"
+              description="Learn security, monitoring, testing, and deployment. Every concept includes deployment-ready code."
             />
             <FeatureCard
               number="06"
-              title="Progress Tracking"
-              description="Bookmark lessons, take notes, track completion. Resume exactly where you stopped."
+              title="72 Quiz Questions"
+              description="Comprehension checks after each module. Verify understanding before advancing to the next level."
             />
           </div>
         </div>
@@ -236,7 +254,7 @@ export default function HomePage() {
             <span className="blueprint-label justify-center mb-4">Training Program</span>
             <h2 className="text-text-primary mb-4">Curriculum Blueprint</h2>
             <p className="text-text-secondary">
-              Zero to production-ready in 8 systematic modules.
+              Zero to deployed agent in 9 systematic modules.
             </p>
           </div>
 
@@ -302,6 +320,13 @@ export default function HomePage() {
                 lessons={3}
                 status="locked"
               />
+              <ModuleCard
+                number="09"
+                title="Capstone Project"
+                duration="4-8 hrs"
+                lessons={5}
+                status="locked"
+              />
             </div>
           </div>
 
@@ -325,10 +350,10 @@ export default function HomePage() {
             <Logo size="lg" showText={false} />
           </div>
           
-          <h2 className="text-text-primary mb-4">Ready to Begin?</h2>
+          <h2 className="text-text-primary mb-4">Ready to Build?</h2>
           
           <p className="annotation text-xl mb-8">
-            join the next generation of AI builders
+            deploy your own AI agent by the end
           </p>
           
           <Link href="/auth/signin" className="btn btn-primary">

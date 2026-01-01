@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
-import { AITutor } from "@/components/AITutor";
+import { CollapsibleTutor } from "@/components/CollapsibleTutor";
 import { LessonTracker } from "@/components/LessonTracker";
 import curriculumData from "@/content/modules/curriculum.json";
 import { loadLessonContent } from "@/lib/lessons";
@@ -209,14 +209,12 @@ export default async function LessonPage({ params }: LessonPageProps) {
           </div>
 
           {/* Right: AI Tutor */}
-          <div className="w-[450px] flex-shrink-0 bg-bp-deep border-l border-border">
-            <AITutor
-              moduleId={moduleId}
-              lessonId={lessonId}
-              moduleContext={`Module: ${currentModule.title}\nDescription: ${currentModule.description}`}
-              lessonContent={lessonData.content}
-            />
-          </div>
+          <CollapsibleTutor
+            moduleId={moduleId}
+            lessonId={lessonId}
+            moduleContext={`Module: ${currentModule.title}\nDescription: ${currentModule.description}`}
+            lessonContent={lessonData.content}
+          />
         </div>
       </main>
     </div>

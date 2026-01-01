@@ -146,9 +146,6 @@ export async function* streamTutorResponse(
   }
 }
 
-/**
- * Non-streaming version for simple responses
- */
 export async function getTutorResponse(
   messages: TutorMessage[],
   context: TutorContext
@@ -158,4 +155,92 @@ export async function getTutorResponse(
     fullResponse += chunk;
   }
   return fullResponse;
+}
+
+export async function* streamTutorResponseClient(
+  messages: TutorMessage[],
+  context: TutorContext,
+  apiKey: string
+): AsyncGenerator<string> {
+  const systemPrompt = buildSystemPrompt(context);
+
+  const payload = {
+    model: MODEL_ID,
+    messages: [
+      { role: "system", content: systemPrompt },
+      ...messages.map((m) => ({
+        role: m.role,
+        content: m.content,
+      })),
+    ],
+    max_tokens: 4096,
+    stream: true,
+    temperature: 0.7,
+  };
+
+  const response = await fetch(OPENROUTER_API_URL, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": window.location.origin,
+      "X-Title": "AgentCore Academy",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("OpenRouter API error:", response.status, errorText);
+    throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
+  }
+
+  if (!response.body) {
+    throw new Error("No response body from OpenRouter");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      
+      if (!trimmed || trimmed === "data: [DONE]") continue;
+      
+      if (trimmed.startsWith("data: ")) {
+        try {
+          const data = JSON.parse(trimmed.slice(6));
+          const content = data.choices?.[0]?.delta?.content;
+          if (content) {
+            yield content;
+          }
+        } catch {
+          console.warn("Failed to parse SSE chunk:", trimmed);
+        }
+      }
+    }
+  }
+
+  if (buffer.trim() && buffer.trim().startsWith("data: ")) {
+    try {
+      const data = JSON.parse(buffer.trim().slice(6));
+      const content = data.choices?.[0]?.delta?.content;
+      if (content) {
+        yield content;
+      }
+    } catch {
+      // Skip
+    }
+  }
 }
