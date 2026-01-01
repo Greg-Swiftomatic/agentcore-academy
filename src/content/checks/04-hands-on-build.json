@@ -1,0 +1,118 @@
+{
+  "moduleId": "04-hands-on-build",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "application",
+      "question": "You run `python agent.py` and get 'ModuleNotFoundError: No module named bedrock_agentcore'. What's the most likely cause?",
+      "options": [
+        { "id": "a", "text": "You need to enable Claude in the Bedrock console" },
+        { "id": "b", "text": "Your virtual environment isn't activated or the package isn't installed" },
+        { "id": "c", "text": "The AWS region is wrong" },
+        { "id": "d", "text": "Docker isn't running" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "ModuleNotFoundError means Python can't find the package. Either your virtual environment isn't activated (`source .venv/bin/activate`) or you haven't installed the package (`pip install bedrock-agentcore`). This is a Python environment issue, not an AWS configuration issue.",
+      "concept": "Environment setup troubleshooting"
+    },
+    {
+      "id": "q2",
+      "type": "scenario",
+      "question": "Your agent works locally but fails in production with 'Access Denied' when calling Claude. Local testing uses your personal AWS credentials. What's missing?",
+      "options": [
+        { "id": "a", "text": "The production container needs the BedrockAgentCoreFullAccess and AmazonBedrockFullAccess IAM policies" },
+        { "id": "b", "text": "You need to hardcode your AWS credentials in the code" },
+        { "id": "c", "text": "Claude only works in local development" },
+        { "id": "d", "text": "You need to restart Docker" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "In production, the AgentCore Runtime container uses an IAM role, not your personal credentials. This role needs the BedrockAgentCoreFullAccess and AmazonBedrockFullAccess policies to call Bedrock models. Never hardcode credentials - that's a security risk.",
+      "concept": "IAM permissions for deployment"
+    },
+    {
+      "id": "q3",
+      "type": "application",
+      "question": "You create this tool, but the agent never uses it even when users ask about weather. Why?\n\n```python\n@tool\ndef weather(c: str) -> str:\n    \"\"\"Gets data.\"\"\"\n    return get_weather_api(c)\n```",
+      "options": [
+        { "id": "a", "text": "The function name must be longer" },
+        { "id": "b", "text": "The parameter 'c' and description 'Gets data' are too vague - the agent can't tell this is a weather tool" },
+        { "id": "c", "text": "Tools can't return strings" },
+        { "id": "d", "text": "You need to register it with Gateway first" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "The agent selects tools based on name, parameter names, and description. 'weather' is okay, but 'c' doesn't indicate it's a city, and 'Gets data' doesn't mention weather at all. Better: `get_weather(city: str)` with description 'Get current weather for a city. Use when users ask about weather, temperature, or conditions.'",
+      "concept": "Tool description clarity"
+    },
+    {
+      "id": "q4",
+      "type": "critical",
+      "question": "Your tool calls an external payment API. The API returns a 500 error. Which implementation is BEST?",
+      "options": [
+        { "id": "a", "text": "raise Exception('Payment API failed')" },
+        { "id": "b", "text": "return None" },
+        { "id": "c", "text": "return {'error': 'payment_service_unavailable', 'message': 'Unable to process payment. Please try again.'}" },
+        { "id": "d", "text": "retry forever until it succeeds" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Return structured error data, not exceptions. This lets the agent understand what went wrong and explain it to the user gracefully ('I'm sorry, the payment service is temporarily unavailable'). Raising exceptions crashes the agent. Returning None gives no context. Infinite retry hangs the request.",
+      "concept": "Tool error handling"
+    },
+    {
+      "id": "q5",
+      "type": "scenario",
+      "question": "You want to see which tools your agent called during a request. How do you access this information?",
+      "options": [
+        { "id": "a", "text": "Check the CloudWatch logs only" },
+        { "id": "b", "text": "Access result.tools_used after calling agent(message)" },
+        { "id": "c", "text": "Parse the response text for tool names" },
+        { "id": "d", "text": "This information isn't available" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "The agent result object includes `result.tools_used`, a list of tools that were called during execution. You can return this in your response: `{'result': result.message, 'tools_used': [t.name for t in result.tools_used]}`. This is useful for debugging and transparency.",
+      "concept": "Inspecting tool usage"
+    },
+    {
+      "id": "q6",
+      "type": "application",
+      "question": "Your agent needs to remember the user's name across the conversation. Where in the code should you handle this?",
+      "options": [
+        { "id": "a", "text": "In the @tool decorator" },
+        { "id": "b", "text": "In the @app.entrypoint function, using a database or Memory Service" },
+        { "id": "c", "text": "The Agent class handles this automatically" },
+        { "id": "d", "text": "In the requirements.txt file" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "The entry point function receives each request and returns responses. You control what context goes in and what gets saved. Use the Memory Service or a database here: retrieve user context before calling the agent, save updated context after. The Agent class doesn't automatically persist anything across requests.",
+      "concept": "State management in entry point"
+    },
+    {
+      "id": "q7",
+      "type": "scenario",
+      "question": "After running `agentcore launch`, your deployment fails with 'container build failed'. The error mentions 'numpy'. What should you check first?",
+      "options": [
+        { "id": "a", "text": "Your AWS credentials" },
+        { "id": "b", "text": "Your requirements.txt - ensure all dependencies including numpy are listed" },
+        { "id": "c", "text": "Your Bedrock model access" },
+        { "id": "d", "text": "Your Docker version" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Container build failures with package names usually mean missing dependencies. The deployment packages your code using requirements.txt. If your code imports numpy (directly or indirectly) but numpy isn't in requirements.txt, the container build fails. Add all dependencies to requirements.txt.",
+      "concept": "Deployment dependency management"
+    },
+    {
+      "id": "q8",
+      "type": "critical",
+      "question": "You're building a customer service agent. Users sometimes send requests without a 'prompt' field. What happens with this code?\n\n```python\n@app.entrypoint\ndef invoke(payload):\n    user_message = payload['prompt']  # Note: direct access, not .get()\n    result = agent(user_message)\n    return {'result': result.message}\n```",
+      "options": [
+        { "id": "a", "text": "Returns an empty response" },
+        { "id": "b", "text": "Crashes with KeyError, returning a 500 error to the user" },
+        { "id": "c", "text": "Uses a default prompt automatically" },
+        { "id": "d", "text": "Logs a warning and continues" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Using `payload['prompt']` instead of `payload.get('prompt', 'default')` raises KeyError when 'prompt' is missing, causing a 500 error. In production, always validate input and use `.get()` with defaults: `payload.get('prompt', 'Hello!')`. Better yet, return a helpful error message when required fields are missing.",
+      "concept": "Input validation in entry point"
+    }
+  ]
+}
