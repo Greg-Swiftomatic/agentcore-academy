@@ -6,10 +6,11 @@ An interactive learning platform that teaches developers how to build AI agents 
 
 AgentCore Academy is a full-stack educational web application featuring:
 
-- **Structured Curriculum** - 8 modules covering AgentCore from basics to production deployment
-- **AI-Powered Tutor** - Real-time conversational tutoring with streaming responses
+- **9-Module Curriculum** - From fundamentals to capstone project deployment
+- **AI-Powered Tutor** - BYOK (Bring Your Own Key) streaming chat with GLM-4
+- **Hands-On Exercises** - 7 exercises building toward your capstone project
 - **Progress Tracking** - Persistent user progress with comprehension checks
-- **Modern Architecture** - Serverless, scalable, and cost-effective
+- **Collapsible UI** - Hide/show the AI tutor as needed
 
 ## Tech Stack
 
@@ -17,7 +18,7 @@ AgentCore Academy is a full-stack educational web application featuring:
 |-------|------------|
 | Frontend | Next.js 14 (App Router), React, Tailwind CSS |
 | Backend | Next.js API Routes (Serverless) |
-| AI | OpenRouter API (GLM-4 model) |
+| AI | OpenRouter API (GLM-4 model) - BYOK |
 | Database | Amazon DynamoDB |
 | Auth | Amazon Cognito (Google OAuth) |
 | Hosting | AWS Amplify Gen 2 |
@@ -25,23 +26,24 @@ AgentCore Academy is a full-stack educational web application featuring:
 
 ## Features
 
-### AI Tutor
-- Streaming responses for real-time interaction
-- Context-aware teaching based on lesson content
-- Adaptive pacing with comprehension checks
-- Grounded in curated knowledge base content
+### AI Tutor (BYOK)
+- **Bring Your Own Key** - Users provide their OpenRouter API key
+- **Client-side streaming** - Direct browser-to-OpenRouter calls
+- **Key stored locally** - Never touches our servers
+- **Collapsible panel** - Hide when not in use
 
 ### Learning Experience
-- Progressive curriculum from fundamentals to advanced topics
-- Hands-on lessons with code examples
-- Module-based progress tracking
-- Interactive Q&A with the AI tutor
+- 9 modules, 30+ lessons
+- 7 hands-on exercises building toward capstone
+- Capstone project: Build and deploy a real agent
+- Comprehension checks after each module
+- Code review and debugging help from AI tutor
 
 ### Architecture Highlights
-- **Standalone SSR** - Next.js standalone output for optimized serverless deployment
-- **Single-table DynamoDB** - Efficient data model for user progress
-- **Streaming API** - Server-Sent Events for real-time AI responses
-- **OAuth Integration** - Secure Google authentication via Cognito
+- **Standalone SSR** - Next.js standalone output for serverless
+- **Build-time content** - Knowledge base embedded via webpack
+- **Single-table DynamoDB** - Efficient user progress storage
+- **OAuth Integration** - Google authentication via Cognito
 
 ## Project Structure
 
@@ -53,10 +55,18 @@ src/
 │   ├── dashboard/         # User dashboard
 │   └── auth/              # Authentication flows
 ├── components/            # React components
+│   ├── AITutor.tsx        # Main tutor with BYOK
+│   ├── CollapsibleTutor.tsx # Collapse/expand wrapper
+│   ├── APIKeyModal.tsx    # Key management modal
+│   └── Exercise.tsx       # Exercise component
+├── hooks/                 # Custom React hooks
+│   └── useAPIKey.ts       # LocalStorage key management
 ├── lib/                   # Utilities and API clients
 └── content/               # Curriculum and knowledge base
     ├── modules/           # Course structure (JSON)
     ├── lessons/           # Lesson content (JSON)
+    ├── exercises/         # Per-module exercises (JSON)
+    ├── checks/            # Comprehension quizzes (JSON)
     └── knowledge-base/    # AI grounding content (Markdown)
 ```
 
@@ -70,10 +80,6 @@ src/
 # Install dependencies
 npm install
 
-# Set up environment
-cp .env.example .env.local
-# Add your OPENROUTER_API_KEY
-
 # Start Amplify backend (Terminal 1)
 npx ampx sandbox
 
@@ -81,16 +87,21 @@ npx ampx sandbox
 npm run dev
 ```
 
-## What I Built
+No environment variables required for BYOK mode - users provide their own OpenRouter API key in the app.
 
-This project demonstrates:
+## Curriculum
 
-- Full-stack Next.js application with App Router
-- Integration with multiple AWS services (Amplify, Cognito, DynamoDB)
-- Real-time streaming AI responses
-- OAuth authentication flow
-- Serverless architecture on AWS
-- Content management for educational curriculum
+| Module | Topic | Exercises |
+|--------|-------|-----------|
+| 01 | Introduction to AgentCore | Agent Idea Canvas |
+| 02 | Core Services | Service Map |
+| 03 | Agent Patterns | Tool Spec Sheet |
+| 04 | Hands-On Build | - |
+| 05 | Security & IAM | IAM Policy Draft |
+| 06 | Operations | Monitoring Dashboard |
+| 07 | Advanced Topics | Multi-Agent Design |
+| 08 | Deployment | Pre-Launch Checklist |
+| 09 | Capstone Project | Full project build |
 
 ## License
 

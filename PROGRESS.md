@@ -1,89 +1,101 @@
 # AgentCore Academy - Project Progress
 
-## Current Status: 500 Error Fixed - Pending Deployment
+## Current Status: BYOK + Collapsible Tutor Deployed
 
 **Last Updated:** January 1, 2026
 
 ---
 
-## Latest Session Summary
+## Latest Session (January 1, 2026)
 
-### Problem
-The AI tutor API (`/api/tutor`) returns 500 error in production on AWS Amplify.
+### Features Implemented
 
-### Root Cause
-The `knowledge-base.ts` file used `fs.readFile()` to load markdown content at runtime. In Next.js standalone mode on Amplify serverless, the `outputFileTracingIncludes` config wasn't working reliably.
+#### 1. BYOK (Bring Your Own Key) for AI Tutor
+- Users provide their own OpenRouter API key
+- Key stored in localStorage (never sent to server)
+- Direct client-to-OpenRouter streaming
+- Locked state UI when no key configured
+- Settings modal for key management
 
-### Solution Applied (January 1, 2026)
+#### 2. Collapsible AI Tutor
+- Collapse button in tutor header
+- Minimal vertical tab when collapsed
+- State persisted to localStorage
+- Click to expand
 
-**Embedded knowledge base at build time using webpack `asset/source`:**
+#### 3. Module 09: Capstone Project (5 lessons)
+- 01: Choose Your Project (4 project types)
+- 02: Architecture Design
+- 03: Implementation
+- 04: Testing and Iteration
+- 05: Deploy and Celebrate
 
-1. **Updated `next.config.mjs`** - Added webpack config to import .md files as raw text:
-   ```javascript
-   webpack: (config) => {
-     config.module.rules.push({
-       test: /\.md$/,
-       type: 'asset/source',
-     });
-     return config;
-   },
-   ```
+#### 4. Per-Module Exercises (7 total)
+- Module 01: Agent Idea Canvas
+- Module 02: Service Map
+- Module 03: Tool Spec Sheet
+- Module 05: IAM Policy Draft
+- Module 06: Monitoring Dashboard
+- Module 07: Multi-Agent Design
+- Module 08: Pre-Launch Checklist
 
-2. **Rewrote `src/lib/knowledge-base.ts`** - Changed from `fs.readFile()` to static imports:
-   - All 17 markdown files are now imported at build time
-   - Content is bundled directly into the serverless function
-   - No filesystem access required at runtime
+#### 5. Enhanced AI Tutor Prompts
+- Active coaching mode
+- Code review with severity levels
+- Exercise feedback against success criteria
+- Mid-lesson knowledge checks
 
-3. **Added TypeScript declaration** - `src/types/markdown.d.ts` for .md module types
+### Files Created
+```
+src/hooks/useAPIKey.ts
+src/components/APIKeyModal.tsx
+src/components/CollapsibleTutor.tsx
+src/components/Exercise.tsx
+src/lib/exercises.ts
+src/app/learn/[moduleId]/exercise/page.tsx
+src/content/lessons/09-capstone/*.json (5 files)
+src/content/checks/09-capstone.json
+src/content/exercises/**/*.json (7 files)
+```
 
-### Previous Fixes (December 31, 2025)
+### Files Modified
+```
+src/components/AITutor.tsx - BYOK + collapse
+src/lib/openrouter.ts - Client-side streaming
+src/app/learn/[moduleId]/[lessonId]/page.tsx - CollapsibleTutor
+src/app/page.tsx - Updated stats, Module 09
+src/content/modules/curriculum.json - Module 09
+src/content/prompts/system-tutor.md - Active mode
+```
 
-1. **Added `output: 'standalone'`** to `next.config.mjs` (commit `7a97a25`)
-   - Fixed initial 404 error - route is now being reached
-
-2. **Added `outputFileTracingIncludes`** to `next.config.mjs` (commit `0d6706c`)
-   - This didn't reliably work for serverless
-
-3. **Added detailed logging** to both files for debugging
+### Commits
+- `226e4d5` - Add BYOK support and collapsible AI tutor
+- `519596f` - Add capstone project, per-module exercises, and active AI tutor
 
 ---
 
-## Next Steps (Priority Order)
+## Previous Sessions
 
-### 1. Push and Deploy
-- Commit and push the new changes
-- Wait for Amplify to deploy
+### December 31, 2025 - January 1, 2026: 500 Error Fix
 
-### 2. Verify Environment Variable
-Check AWS Amplify Console → Hosting → Environment variables:
-- Ensure `OPENROUTER_API_KEY` is set with valid OpenRouter API key
+**Problem:** AI tutor API returning 500 in production
 
-### 3. Test After Deployment
-- Go to live site and test AI tutor in a lesson
-- Verify 500 error is resolved
-
-### 4. Minor Issues to Address
-- Add `favicon.ico` (404 in browser)
-- Investigate RSC 404 for `/learn/01-introduction?_rsc=...` (may be expected behavior)
+**Solution:** Embedded knowledge base at build time using webpack `asset/source` instead of runtime `fs.readFile()`
 
 ---
 
 ## Architecture Overview
 
 ```
-User → Amplify CloudFront → Next.js Standalone
-                              ↓
-                         /api/tutor (POST)
-                              ↓
-                    loadLessonKnowledge()
-                              ↓
-                    fs.readFile (markdown)
-                              ↓
-                    streamTutorResponse()
-                              ↓
-                    OpenRouter API (GLM-4)
-                              ↓
-                    SSE stream back to client
+User Browser
+    │
+    ├─► Lessons/Exercises (SSR via Amplify)
+    │
+    └─► AI Tutor (BYOK)
+            │
+            └─► OpenRouter API (GLM-4)
+                    │
+                    └─► Streaming response back to browser
 ```
 
 ---
@@ -92,49 +104,34 @@ User → Amplify CloudFront → Next.js Standalone
 
 - **Live Site:** https://main.d137jxngnvzxkf.amplifyapp.com/
 - **GitHub Repo:** https://github.com/Greg-Swiftomatic/agentcore-academy
-- **Amplify Console:** AWS Console → Amplify → agentcore-academy
+- **OpenRouter:** https://openrouter.ai/keys (get API key)
 
 ---
 
-## Tech Stack Quick Reference
+## Stats
 
-| Component | Technology |
-|-----------|------------|
-| Framework | Next.js 14 (App Router) |
-| Hosting | AWS Amplify Gen 2 |
-| AI Model | GLM-4 via OpenRouter (`z-ai/glm-4.7`) |
-| Auth | Cognito (Google OAuth) |
-| Database | DynamoDB |
-| Styling | Tailwind CSS |
+| Metric | Count |
+|--------|-------|
+| Modules | 9 |
+| Lessons | 30+ |
+| Exercises | 7 |
+| Comprehension Checks | 9 |
 
 ---
 
-## Files Modified This Session
-
-### January 1, 2026
-1. `next.config.mjs` - Added webpack config for .md imports
-2. `src/lib/knowledge-base.ts` - Rewrote to use static imports (build-time bundling)
-3. `src/types/markdown.d.ts` - Added TypeScript declarations for .md files
-
-### December 31, 2025
-1. `next.config.mjs` - Added standalone output + file tracing
-2. `src/app/api/tutor/route.ts` - Added debug logging
-3. `src/lib/knowledge-base.ts` - Added debug logging
-
----
-
-## Quick Start Commands
+## Quick Commands
 
 ```bash
-# Local development (2 terminals)
-npx ampx sandbox          # Terminal 1: Backend
-npm run dev               # Terminal 2: Frontend
+# Local development
+npx ampx sandbox    # Terminal 1
+npm run dev         # Terminal 2
 
-# Check deployment status
-git log --oneline -5      # Recent commits
+# Type check
+npm run typecheck
 
-# Test API locally
-curl -X POST http://localhost:3000/api/tutor \
-  -H "Content-Type: application/json" \
-  -d '{"messages":[{"role":"user","content":"Hello"}],"moduleId":"01-introduction","lessonId":"01-what-is-agentcore"}'
+# Lint
+npm run lint
+
+# Build
+npm run build
 ```
