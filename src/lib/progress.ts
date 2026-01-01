@@ -206,9 +206,6 @@ export async function updateCurrentLesson(
   }
 }
 
-/**
- * Mark a module as completed
- */
 export async function completeModule(
   userId: string,
   moduleId: string
@@ -218,8 +215,23 @@ export async function completeModule(
     const existing = await getModuleProgress(userId, moduleId);
 
     if (!existing) {
-      console.log("[Progress] No progress found for module");
-      return false;
+      console.log("[Progress] No progress found, creating completed record");
+      const { data, errors } = await client.models.ModuleProgress.create({
+        userId,
+        moduleId,
+        status: "COMPLETED",
+        startedAt: new Date().toISOString(),
+        completedAt: new Date().toISOString(),
+        bookmarks: [],
+      });
+
+      if (errors) {
+        console.error("[Progress] Error creating completed module:", errors);
+        return false;
+      }
+
+      console.log("[Progress] Created completed module:", data);
+      return true;
     }
 
     const { errors } = await client.models.ModuleProgress.update({
