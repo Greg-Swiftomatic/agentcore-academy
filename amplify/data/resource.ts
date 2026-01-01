@@ -14,6 +14,7 @@ const schema = a.schema({
       avatarUrl: a.string(),
       authProvider: a.enum(["GITHUB", "GOOGLE"]),
       lastActiveAt: a.datetime(),
+      owner: a.string(),
     })
     .identifier(["userId"])
     .authorization((allow) => [allow.owner()]),
@@ -32,6 +33,8 @@ const schema = a.schema({
       comprehensionChecks: a.json(),
       // Bookmarked lesson IDs
       bookmarks: a.string().array(),
+      // Owner field for authorization - maps to Cognito identity
+      owner: a.string(),
     })
     .secondaryIndexes((index) => [
       index("userId").sortKeys(["moduleId"]).queryField("progressByUser"),
@@ -46,6 +49,7 @@ const schema = a.schema({
       moduleId: a.string().required(),
       lessonId: a.string().required(),
       content: a.string().required(),
+      owner: a.string(),
     })
     .secondaryIndexes((index) => [
       index("userId")
@@ -66,6 +70,7 @@ const schema = a.schema({
       topicsExplained: a.string().array(),
       // Knowledge gaps the AI has identified
       identifiedGaps: a.string().array(),
+      owner: a.string(),
     })
     .secondaryIndexes((index) => [
       index("userId").sortKeys(["moduleId"]).queryField("learningStateByUser"),

@@ -12,8 +12,9 @@ try {
   // Already configured
 }
 
-// Generate typed client
-const client = generateClient<Schema>();
+const client = generateClient<Schema>({
+  authMode: "userPool",
+});
 
 export type ModuleStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
 
@@ -210,45 +211,71 @@ export async function completeModule(
   userId: string,
   moduleId: string
 ): Promise<boolean> {
-  console.log("[Progress] Completing module:", { userId, moduleId });
+  console.log("[Progress] completeModule called:", { userId, moduleId });
+  
+  if (!userId) {
+    console.error("[Progress] Cannot complete module: userId is empty");
+    return false;
+  }
+  
   try {
+    console.log("[Progress] Checking for existing progress record...");
     const existing = await getModuleProgress(userId, moduleId);
+    console.log("[Progress] Existing record:", existing);
 
     if (!existing) {
-      console.log("[Progress] No progress found, creating completed record");
-      const { data, errors } = await client.models.ModuleProgress.create({
+      console.log("[Progress] No progress found, creating new COMPLETED record");
+      const createPayload = {
         userId,
         moduleId,
-        status: "COMPLETED",
+        status: "COMPLETED" as const,
         startedAt: new Date().toISOString(),
         completedAt: new Date().toISOString(),
         bookmarks: [],
-      });
+      };
+      console.log("[Progress] Create payload:", createPayload);
+      
+      const { data, errors } = await client.models.ModuleProgress.create(createPayload);
 
-      if (errors) {
-        console.error("[Progress] Error creating completed module:", errors);
+      console.log("[Progress] Create response - data:", data, "errors:", errors);
+
+      if (errors && errors.length > 0) {
+        console.error("[Progress] Create errors:", JSON.stringify(errors, null, 2));
         return false;
       }
 
-      console.log("[Progress] Created completed module:", data);
+      if (!data) {
+        console.error("[Progress] Create returned null data - authorization failure?");
+        return false;
+      }
+
+      console.log("[Progress] Successfully created completed record:", data.id);
       return true;
     }
 
-    const { errors } = await client.models.ModuleProgress.update({
+    console.log("[Progress] Updating existing record to COMPLETED:", existing.id);
+    const { data: updateData, errors } = await client.models.ModuleProgress.update({
       id: existing.id,
       status: "COMPLETED",
       completedAt: new Date().toISOString(),
     });
 
-    if (errors) {
-      console.error("[Progress] Error completing module:", errors);
+    console.log("[Progress] Update response - data:", updateData, "errors:", errors);
+
+    if (errors && errors.length > 0) {
+      console.error("[Progress] Update errors:", JSON.stringify(errors, null, 2));
       return false;
     }
 
-    console.log("[Progress] Module completed successfully");
+    if (!updateData) {
+      console.error("[Progress] Update returned null data - authorization failure?");
+      return false;
+    }
+
+    console.log("[Progress] Successfully updated to completed:", updateData.id);
     return true;
   } catch (error) {
-    console.error("[Progress] Error completing module:", error);
+    console.error("[Progress] Exception in completeModule:", error);
     return false;
   }
 }

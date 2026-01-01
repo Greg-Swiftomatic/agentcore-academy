@@ -33,11 +33,26 @@ export default function CheckPage() {
   }
 
   const handleComplete = async (passed: boolean, score: number) => {
-    console.log("[Check] Completed:", { passed, score, moduleId });
+    console.log("[Check] handleComplete called:", { passed, score, moduleId, userId: user?.id });
     
-    if (passed && user?.id) {
+    if (!passed) {
+      console.log("[Check] User did not pass, skipping progress update");
+      return;
+    }
+    
+    if (!user?.id) {
+      console.warn("[Check] User not signed in, progress will not be saved");
+      return;
+    }
+    
+    try {
+      console.log("[Check] Marking module complete for user:", user.id);
       await markModuleComplete(moduleId);
+      console.log("[Check] markModuleComplete succeeded, refreshing progress...");
       await refreshProgress();
+      console.log("[Check] Progress refreshed successfully");
+    } catch (error) {
+      console.error("[Check] Error in handleComplete:", error);
     }
   };
 
