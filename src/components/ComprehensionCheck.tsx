@@ -49,6 +49,7 @@ export function ComprehensionCheck({ moduleId, onComplete }: ComprehensionCheckP
   const [isComplete, setIsComplete] = useState(false);
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [progressSaved, setProgressSaved] = useState<boolean | null>(null);
 
   useEffect(() => {
     async function loadCheck() {
@@ -112,7 +113,6 @@ export function ComprehensionCheck({ moduleId, onComplete }: ComprehensionCheckP
       setSelectedAnswer(null);
       setShowResult(false);
     } else {
-      // Calculate final score
       const correctCount = checkData.questions.reduce((count, q) => {
         return count + (answers[q.id] === q.correctAnswer || 
           (q.id === question.id && selectedAnswer === q.correctAnswer) ? 1 : 0);
@@ -122,6 +122,13 @@ export function ComprehensionCheck({ moduleId, onComplete }: ComprehensionCheckP
       setIsComplete(true);
       
       const passed = finalScore >= checkData.passingScore;
+      
+      if (passed && user?.id) {
+        setProgressSaved(true);
+      } else if (passed && !user?.id) {
+        setProgressSaved(false);
+      }
+      
       onComplete?.(passed, finalScore);
     }
   };
@@ -159,10 +166,22 @@ export function ComprehensionCheck({ moduleId, onComplete }: ComprehensionCheckP
           </p>
           
           {passed ? (
-            <p className="text-text-muted text-sm mb-8">
-              You&apos;ve demonstrated understanding of the key concepts in this module.
-              You can now proceed to the next module.
-            </p>
+            progressSaved === false ? (
+              <div className="bg-warning/10 border border-warning/50 p-4 mb-8 text-left">
+                <p className="text-warning font-bold text-sm mb-1">Progress Not Saved</p>
+                <p className="text-text-secondary text-sm">
+                  Sign in with Google to save your progress and unlock the next module.
+                </p>
+                <a href="/auth/signin" className="text-cyan text-sm hover:underline mt-2 inline-block">
+                  Sign in now →
+                </a>
+              </div>
+            ) : (
+              <p className="text-text-muted text-sm mb-8">
+                You&apos;ve demonstrated understanding of the key concepts in this module.
+                You can now proceed to the next module.
+              </p>
+            )
           ) : (
             <p className="text-text-muted text-sm mb-8">
               You need {checkData.passingScore}% to pass. Review the lessons and try again.
