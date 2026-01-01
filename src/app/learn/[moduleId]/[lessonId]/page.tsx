@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
 import { CollapsibleTutor } from "@/components/CollapsibleTutor";
 import { LessonTracker } from "@/components/LessonTracker";
+import { ModuleGate } from "@/components/ModuleGate";
 import curriculumData from "@/content/modules/curriculum.json";
 import { loadLessonContent } from "@/lib/lessons";
 
@@ -53,6 +54,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
   const moduleIndex = curriculumData.modules.findIndex((m) => m.id === moduleId);
 
   return (
+    <ModuleGate moduleId={moduleId}>
     <div className="min-h-screen relative z-10">
       <Navigation />
       <LessonTracker moduleId={moduleId} lessonId={lessonId} />
@@ -218,6 +220,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
         </div>
       </main>
     </div>
+    </ModuleGate>
   );
 }
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
 import { ExerciseComponent } from "@/components/Exercise";
+import { ModuleGate } from "@/components/ModuleGate";
 import { loadExercise } from "@/lib/exercises";
 import curriculumData from "@/content/modules/curriculum.json";
 
@@ -66,6 +67,7 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
   }
 
   return (
+    <ModuleGate moduleId={moduleId}>
     <div className="min-h-screen relative z-10">
       <Navigation />
 
@@ -143,5 +145,6 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
         </div>
       </main>
     </div>
+    </ModuleGate>
   );
 }

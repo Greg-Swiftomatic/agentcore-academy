@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Navigation } from "@/components/Navigation";
 import { ComprehensionCheck } from "@/components/ComprehensionCheck";
+import { ModuleGate } from "@/components/ModuleGate";
 import { useProgress } from "@/hooks/useProgress";
 import { useAuth } from "@/lib/auth";
 import curriculumData from "@/content/modules/curriculum.json";
@@ -57,6 +58,7 @@ export default function CheckPage() {
   };
 
   return (
+    <ModuleGate moduleId={moduleId}>
     <div className="min-h-screen relative z-10">
       <Navigation />
 
@@ -120,5 +122,6 @@ export default function CheckPage() {
         </div>
       </main>
     </div>
+    </ModuleGate>
   );
 }

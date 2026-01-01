@@ -89,12 +89,14 @@ function ModuleCard({
   status,
   progress,
   href,
+  isUnlocked = true,
 }: {
   number: string;
   title: string;
   status: "completed" | "in_progress" | "not_started";
   progress?: number;
   href: string;
+  isUnlocked?: boolean;
 }) {
   const statusStyles = {
     completed: "border-success",
@@ -103,7 +105,7 @@ function ModuleCard({
   };
 
   const content = (
-    <div className={`p-4 border ${statusStyles[status]} transition-all hover:bg-bp-secondary/30 group relative`}>
+    <div className={`p-4 border ${statusStyles[status]} transition-all ${isUnlocked ? "hover:bg-bp-secondary/30 cursor-pointer" : "cursor-not-allowed"} group relative ${!isUnlocked ? "opacity-50" : ""}`}>
       {/* Corner marks */}
       <div className="absolute top-0 left-0 w-2 h-2 border-l border-t border-current opacity-50" />
       <div className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-current opacity-50" />
@@ -116,7 +118,7 @@ function ModuleCard({
           }`}>
             {number}
           </span>
-          <span className="font-body text-sm font-bold text-text-primary group-hover:text-cyan transition-colors">
+          <span className={`font-body text-sm font-bold ${isUnlocked ? "text-text-primary group-hover:text-cyan" : "text-text-muted"} transition-colors`}>
             {title}
           </span>
         </div>
@@ -125,9 +127,9 @@ function ModuleCard({
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
         )}
-        {status === "not_started" && (
-          <svg className="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        {!isUnlocked && (
+          <svg className="w-4 h-4 text-text-muted" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
           </svg>
         )}
       </div>
@@ -138,6 +140,10 @@ function ModuleCard({
       )}
     </div>
   );
+
+  if (!isUnlocked) {
+    return <div>{content}</div>;
+  }
 
   return <Link href={href}>{content}</Link>;
 }
@@ -275,6 +281,8 @@ export default function DashboardPage() {
                         const displayStatus = status === "COMPLETED" ? "completed" : 
                                              status === "IN_PROGRESS" ? "in_progress" : "not_started";
                         
+                        const isUnlocked = index === 0 || getModuleStatus(curriculumData.modules[index - 1].id) === "COMPLETED";
+                        
                         return (
                           <ModuleCard
                             key={module.id}
@@ -283,6 +291,7 @@ export default function DashboardPage() {
                             status={displayStatus}
                             progress={status !== "NOT_STARTED" ? progress : undefined}
                             href={`/learn/${module.id}/${module.lessons[0]?.id}`}
+                            isUnlocked={isUnlocked}
                           />
                         );
                       })}
