@@ -1,0 +1,118 @@
+{
+  "moduleId": "03-agent-patterns",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "scenario",
+      "question": "A user asks: 'Cancel my most recent order.' The agent needs to first find the order, then cancel it. Which tool selection pattern is this?",
+      "options": [
+        { "id": "a", "text": "Single tool selection - one tool handles everything" },
+        { "id": "b", "text": "Parallel tool selection - both tools run simultaneously" },
+        { "id": "c", "text": "Sequential tool selection - get_recent_orders first, then cancel_order" },
+        { "id": "d", "text": "Conditional tool selection - choose based on context" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "This is sequential tool selection because the cancel_order tool depends on the result of get_recent_orders. The agent must wait for the first tool's result (the order ID) before it can call the second tool.",
+      "concept": "Sequential tool selection"
+    },
+    {
+      "id": "q2",
+      "type": "application",
+      "question": "You're writing a tool description and want the agent to select it correctly. Which description is BEST?",
+      "options": [
+        { "id": "a", "text": "Gets data from the system" },
+        { "id": "b", "text": "Retrieves order fulfillment status, tracking number, and delivery estimate. Use when customers ask where their order is or when it will arrive." },
+        { "id": "c", "text": "Order tool for orders" },
+        { "id": "d", "text": "get_order_status(order_id) -> dict" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Good tool descriptions are specific about what the tool does, what it returns, and when to use it. Option B includes all three: the action (retrieves status), the return value (tracking, delivery estimate), and usage guidance (when customers ask about orders).",
+      "concept": "Tool description best practices"
+    },
+    {
+      "id": "q3",
+      "type": "concept",
+      "question": "What is the key difference between short-term and long-term memory in AgentCore?",
+      "options": [
+        { "id": "a", "text": "Short-term is faster, long-term is slower" },
+        { "id": "b", "text": "Short-term exists within a session, long-term persists across sessions" },
+        { "id": "c", "text": "Short-term is for users, long-term is for agents" },
+        { "id": "d", "text": "Short-term uses RAM, long-term uses disk" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Short-term memory (conversation history, working state) exists only within a single session and is managed by the agent framework. Long-term memory (user preferences, learned behaviors) persists across sessions and is managed by the AgentCore Memory service.",
+      "concept": "Memory types"
+    },
+    {
+      "id": "q4",
+      "type": "scenario",
+      "question": "You need to store company-wide return policies that ALL agents can access, regardless of which user they're serving. Which memory scope should you use?",
+      "options": [
+        { "id": "a", "text": "User-scoped memory" },
+        { "id": "b", "text": "Session-scoped memory" },
+        { "id": "c", "text": "Agent-scoped memory" },
+        { "id": "d", "text": "Global memory" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "Global memory is available across all agents and all users. It's perfect for company-wide knowledge like policies, product information, and shared knowledge bases. User-scoped is per-user, session-scoped is per-conversation, and agent-scoped is per-agent type.",
+      "concept": "Memory scopes"
+    },
+    {
+      "id": "q5",
+      "type": "application",
+      "question": "Your custom tool calls an external API. The API returns an error. What's the BEST way to handle this?",
+      "options": [
+        { "id": "a", "text": "Raise an exception so the agent stops" },
+        { "id": "b", "text": "Return an empty result and let the agent figure it out" },
+        { "id": "c", "text": "Return a structured error object like {\"error\": \"api_error\", \"message\": \"Service unavailable\"}" },
+        { "id": "d", "text": "Retry indefinitely until it succeeds" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Return errors as structured data, not exceptions. This allows the agent to understand what went wrong and communicate it to the user gracefully. The agent can explain 'The order service is temporarily unavailable' rather than crashing or guessing.",
+      "concept": "Tool error handling"
+    },
+    {
+      "id": "q6",
+      "type": "critical",
+      "question": "A developer creates a tool called 'do_stuff' with description 'Does stuff'. Why is this problematic?",
+      "options": [
+        { "id": "a", "text": "The function name is too short" },
+        { "id": "b", "text": "The agent won't know when to select this tool or what parameters to pass" },
+        { "id": "c", "text": "Python doesn't allow underscores in function names" },
+        { "id": "d", "text": "Tools must have at least 3 parameters" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Tool selection depends entirely on the name and description. A vague name like 'do_stuff' and description like 'Does stuff' gives the agent no information about when to use this tool or what it accomplishes. The agent selects tools by matching user intent to tool descriptions.",
+      "concept": "Tool naming and descriptions"
+    },
+    {
+      "id": "q7",
+      "type": "scenario",
+      "question": "Your agent has 200 tools. Loading all of them for every request is slow and confuses the model. What's the recommended approach?",
+      "options": [
+        { "id": "a", "text": "Reduce to 10 tools maximum" },
+        { "id": "b", "text": "Use semantic search to load only relevant tools for each request" },
+        { "id": "c", "text": "Cache all tools in memory" },
+        { "id": "d", "text": "Split into 200 separate agents" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "With many tools, use semantic search or tool categories to dynamically load only the tools relevant to each request. This improves selection accuracy (fewer irrelevant options) and performance (smaller context). Gateway's search_tools() enables this pattern.",
+      "concept": "Scaling tool selection"
+    },
+    {
+      "id": "q8",
+      "type": "application",
+      "question": "You want your agent to remember that a user prefers concise responses, even across multiple sessions over weeks. How should you implement this?",
+      "options": [
+        { "id": "a", "text": "Store in session-scoped memory with a long TTL" },
+        { "id": "b", "text": "Add it to the system prompt" },
+        { "id": "c", "text": "Store in user-scoped long-term memory using memory.store()" },
+        { "id": "d", "text": "Keep it in the agent's conversation history" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "User preferences that persist across sessions belong in user-scoped long-term memory. Use memory.store() with the user's ID as the key. Session memory expires, system prompts are static, and conversation history is per-session only.",
+      "concept": "User profile memory pattern"
+    }
+  ]
+}
