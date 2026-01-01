@@ -1,0 +1,118 @@
+{
+  "moduleId": "05-security-iam",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "scenario",
+      "question": "Your agent needs to access a customer's Google Drive files. The customer has already authenticated to your application via Google OAuth. Which authentication pattern should you use?",
+      "options": [
+        { "id": "a", "text": "2-legged OAuth with your service account credentials" },
+        { "id": "b", "text": "3-legged OAuth delegation - exchange the user's token for a scoped delegated token" },
+        { "id": "c", "text": "Store the user's Google password in Secrets Manager and authenticate directly" },
+        { "id": "d", "text": "Use IAM to access Google Drive through AWS" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "3-legged OAuth delegation is the correct pattern for acting on behalf of a user. The agent exchanges the user's token for a delegated token with limited scope. This maintains audit trails showing 'agent on behalf of user' and allows the delegation to be revoked. 2-legged OAuth is for service-to-service without user context.",
+      "concept": "3-legged OAuth delegation"
+    },
+    {
+      "id": "q2",
+      "type": "critical",
+      "question": "A developer configures the Runtime Execution Role with 'Action': '*' and 'Resource': '*' because 'it's easier than figuring out exact permissions'. What's the primary risk?",
+      "options": [
+        { "id": "a", "text": "The agent will run slower due to permission checks" },
+        { "id": "b", "text": "AWS will automatically block the role from being assumed" },
+        { "id": "c", "text": "If the agent is compromised or misbehaves, it has unrestricted access to the entire AWS account" },
+        { "id": "d", "text": "The role will be flagged for deletion after 90 days" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Overly permissive IAM roles violate the principle of least privilege. If the agent is compromised through prompt injection, a bug, or any security vulnerability, the attacker gains access to everything the role can access - potentially the entire AWS account. Least privilege limits the blast radius.",
+      "concept": "Least privilege principle"
+    },
+    {
+      "id": "q3",
+      "type": "application",
+      "question": "You're setting up the trust policy for your agent's Runtime Execution Role. Which principal should you specify to allow AgentCore to assume this role?",
+      "options": [
+        { "id": "a", "text": "arn:aws:iam::AWS:root" },
+        { "id": "b", "text": "bedrock-agentcore.amazonaws.com" },
+        { "id": "c", "text": "lambda.amazonaws.com" },
+        { "id": "d", "text": "ec2.amazonaws.com" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "The trust policy must specify bedrock-agentcore.amazonaws.com as the principal. This allows the AgentCore service to assume the role when running your agent. Using a broader principal (like AWS:root) would allow unintended services or users to assume the role.",
+      "concept": "Trust policy configuration"
+    },
+    {
+      "id": "q4",
+      "type": "scenario",
+      "question": "Your agent makes calls to both AWS Bedrock and an external CRM API. The security team requires all traffic to stay within the AWS network where possible. What should you configure?",
+      "options": [
+        { "id": "a", "text": "A NAT Gateway for all outbound traffic" },
+        { "id": "b", "text": "VPC endpoints for Bedrock (and other AWS services), with internet access only for the external CRM" },
+        { "id": "c", "text": "A VPN connection to both AWS and the CRM provider" },
+        { "id": "d", "text": "Direct Connect to Bedrock" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "VPC endpoints allow traffic to AWS services (Bedrock, S3, Secrets Manager, etc.) to stay within the AWS network using PrivateLink. This eliminates internet traversal for AWS traffic. The external CRM still requires internet access, but you've minimized exposure by using endpoints for everything AWS.",
+      "concept": "VPC endpoints and network isolation"
+    },
+    {
+      "id": "q5",
+      "type": "critical",
+      "question": "A junior developer commits code with the external API key hardcoded: 'api_key = \"sk_live_abc123\"'. Even though you catch it in code review and remove it, what additional action is REQUIRED?",
+      "options": [
+        { "id": "a", "text": "No action needed - removing it from the current code is sufficient" },
+        { "id": "b", "text": "Add a .gitignore entry for API keys" },
+        { "id": "c", "text": "Rotate the API key immediately - it's now in git history and potentially compromised" },
+        { "id": "d", "text": "Move the key to environment variables" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Once a secret is committed to git, it's in the repository history forever (even if removed from current code). The secret must be considered compromised and rotated immediately. Then implement proper secrets management (Secrets Manager) to prevent recurrence. Git history scrubbing is complex and often incomplete.",
+      "concept": "Secrets management"
+    },
+    {
+      "id": "q6",
+      "type": "application",
+      "question": "You need to implement audit logging that captures: who invoked the agent, what tools were used, and what resources were accessed. Which combination provides complete coverage?",
+      "options": [
+        { "id": "a", "text": "CloudWatch Logs only - all agent output goes there" },
+        { "id": "b", "text": "CloudTrail for AWS API calls + application-level audit logging for tool invocations and business logic" },
+        { "id": "c", "text": "VPC Flow Logs to track all network traffic" },
+        { "id": "d", "text": "X-Ray tracing for performance and audit combined" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Complete audit coverage requires both layers: CloudTrail captures AWS API calls (Bedrock invocations, S3 access, etc.), while application-level logging captures business logic like which tools were invoked, user context, and decisions made. VPC Flow Logs show network traffic but not request content. X-Ray is for performance tracing, not security audit.",
+      "concept": "Audit logging strategy"
+    },
+    {
+      "id": "q7",
+      "type": "scenario",
+      "question": "Your agent's Runtime Execution Role needs to read from a specific S3 bucket and invoke a specific Bedrock model. A colleague suggests using a permission boundary. What's the benefit?",
+      "options": [
+        { "id": "a", "text": "It makes the IAM policy easier to read" },
+        { "id": "b", "text": "It sets a maximum permission ceiling that can never be exceeded, even if someone adds more permissive policies later" },
+        { "id": "c", "text": "It automatically rotates the role credentials" },
+        { "id": "d", "text": "It enables cross-account access to the S3 bucket" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Permission boundaries define the maximum permissions a role can ever have. Even if someone adds a policy with 'Action: *', the boundary limits effective permissions to the intersection. This provides defense against misconfiguration and privilege escalation - a critical guardrail for agent roles.",
+      "concept": "Permission boundaries"
+    },
+    {
+      "id": "q8",
+      "type": "concept",
+      "question": "AgentCore uses a 'delegation' model rather than 'impersonation' for acting on behalf of users. Why is delegation more secure?",
+      "options": [
+        { "id": "a", "text": "Delegation is faster because it requires fewer API calls" },
+        { "id": "b", "text": "Delegation provides scoped access, maintains audit trails as 'agent on behalf of user', and can be revoked - impersonation gives full user access with no visibility" },
+        { "id": "c", "text": "Impersonation is deprecated in OAuth 2.0" },
+        { "id": "d", "text": "Delegation works with more identity providers" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Delegation is more secure because: (1) the agent receives a scoped token with limited permissions, not full user access; (2) all actions are auditable as 'agent on behalf of user', maintaining visibility; (3) the delegation can be revoked at any time. Impersonation makes the agent appear as the user, with no visibility that an agent is acting.",
+      "concept": "Delegation vs impersonation"
+    }
+  ]
+}
