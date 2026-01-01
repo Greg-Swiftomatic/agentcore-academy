@@ -1,0 +1,118 @@
+{
+  "moduleId": "06-operations",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "scenario",
+      "question": "Your agent's monthly LLM costs just doubled, but invocation counts stayed the same. What should you investigate FIRST?",
+      "options": [
+        { "id": "a", "text": "Check if AWS raised their prices" },
+        { "id": "b", "text": "Analyze token usage - likely increased context size or tool result verbosity" },
+        { "id": "c", "text": "Switch to a cheaper model immediately" },
+        { "id": "d", "text": "Reduce the number of agents running" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Since invocation counts are unchanged but costs doubled, the issue is likely token usage per invocation. Common causes: context window bloat (not summarizing old messages), verbose tool results, or overly long system prompts. Investigate token metrics before making changes.",
+      "concept": "Token cost optimization"
+    },
+    {
+      "id": "q2",
+      "type": "application",
+      "question": "You're setting up CloudWatch alarms for your agent. Which metric configuration would catch a degraded user experience WITHOUT causing alert fatigue?",
+      "options": [
+        { "id": "a", "text": "Alert on every single error (Threshold: 1)" },
+        { "id": "b", "text": "Alert on p95 latency > 5s for 3 consecutive 5-minute periods" },
+        { "id": "c", "text": "Alert on p50 latency > 1s" },
+        { "id": "d", "text": "Alert only on complete service outage" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "P95 latency with multiple evaluation periods catches real degradation while filtering noise. Alerting on every error causes fatigue. P50 is too sensitive (half your requests are always above it). Waiting for complete outage is too late. The pattern of 'sustained high percentile' indicates real problems.",
+      "concept": "Alerting strategy"
+    },
+    {
+      "id": "q3",
+      "type": "critical",
+      "question": "Your agent calls an external API that's returning 429 (rate limited). A junior developer suggests: 'Just retry immediately in a tight loop until it works.' What's wrong with this approach?",
+      "options": [
+        { "id": "a", "text": "Nothing wrong - retrying is the correct approach for 429 errors" },
+        { "id": "b", "text": "Immediate retries will likely trigger more rate limiting, wasting resources and potentially getting your API access blocked" },
+        { "id": "c", "text": "429 errors are permanent and should never be retried" },
+        { "id": "d", "text": "The loop will cause memory issues" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Immediate tight-loop retries on rate limits make the problem worse. The API is telling you to slow down - retrying faster is counterproductive and may result in longer bans or permanent blocks. Use exponential backoff with jitter, and respect Retry-After headers when provided.",
+      "concept": "Exponential backoff"
+    },
+    {
+      "id": "q4",
+      "type": "scenario",
+      "question": "Your agent has two tools: 'get_order' (essential for the core use case) and 'get_recommendations' (nice-to-have suggestions). The recommendations service is down. What should your agent do?",
+      "options": [
+        { "id": "a", "text": "Return an error to the user since a tool is unavailable" },
+        { "id": "b", "text": "Continue operating with only get_order, noting that recommendations are temporarily unavailable" },
+        { "id": "c", "text": "Wait until recommendations service recovers before responding" },
+        { "id": "d", "text": "Cache recommendations from yesterday and use those" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Graceful degradation means continuing with reduced functionality when non-essential features fail. The agent can still fulfill its core purpose (order queries) without recommendations. Inform the user of reduced functionality rather than failing entirely or using stale data without disclosure.",
+      "concept": "Graceful degradation"
+    },
+    {
+      "id": "q5",
+      "type": "application",
+      "question": "You're implementing a circuit breaker for an external order API. What happens when the circuit is in HALF_OPEN state?",
+      "options": [
+        { "id": "a", "text": "All requests are rejected" },
+        { "id": "b", "text": "All requests are allowed through normally" },
+        { "id": "c", "text": "A limited number of test requests are allowed through to check if the service has recovered" },
+        { "id": "d", "text": "Requests are queued until the circuit fully closes" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "HALF_OPEN is the testing state. After the recovery timeout expires, the circuit moves from OPEN to HALF_OPEN and allows a small number of requests through. If they succeed, the circuit closes (normal operation). If they fail, it opens again. This prevents overwhelming a recovering service.",
+      "concept": "Circuit breaker pattern"
+    },
+    {
+      "id": "q6",
+      "type": "scenario",
+      "question": "You're debugging a slow agent invocation. The trace shows: LLM inference (800ms), Tool: get_order (2500ms), LLM inference (150ms). Where should you focus optimization efforts?",
+      "options": [
+        { "id": "a", "text": "The LLM inference - it's the most complex operation" },
+        { "id": "b", "text": "The get_order tool - it's taking 2500ms which dominates the request time" },
+        { "id": "c", "text": "The second LLM inference - it should be faster" },
+        { "id": "d", "text": "All operations equally" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "The get_order tool at 2500ms is the dominant factor (72% of total time). The LLM inference times (800ms, 150ms) are reasonable. Focus optimization on the tool: investigate if the underlying API is slow, add caching, or consider async execution. Traces help identify the actual bottleneck vs assumptions.",
+      "concept": "Tracing and performance analysis"
+    },
+    {
+      "id": "q7",
+      "type": "critical",
+      "question": "Your agent encounters an internal NullPointerException. What should the user see?",
+      "options": [
+        { "id": "a", "text": "The full stack trace so they can report the bug accurately" },
+        { "id": "b", "text": "\"NullPointerException at line 142 in OrderService.java\"" },
+        { "id": "c", "text": "\"I encountered an unexpected issue. Our team has been notified.\"" },
+        { "id": "d", "text": "Nothing - fail silently to avoid confusion" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Users should never see internal errors, stack traces, or technical details. These expose implementation details (security risk) and confuse users. Log the full error internally for debugging, but return a user-friendly message that acknowledges the problem and indicates the team is aware. Silent failures are also bad - users need feedback.",
+      "concept": "User-friendly error handling"
+    },
+    {
+      "id": "q8",
+      "type": "application",
+      "question": "You need to reduce agent costs. Which approach provides the BIGGEST impact for least effort?",
+      "options": [
+        { "id": "a", "text": "Rewrite the agent in a more efficient programming language" },
+        { "id": "b", "text": "Route simple queries (e.g., 'What's my order status?') to a cheaper, smaller model like Claude Haiku instead of Claude Sonnet" },
+        { "id": "c", "text": "Reduce the agent's memory allocation from 2GB to 512MB" },
+        { "id": "d", "text": "Compress all API responses with gzip" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Model routing provides massive cost savings with minimal code changes. Claude Haiku costs ~12x less than Sonnet. Simple queries don't need the most powerful model. This one change can reduce LLM costs by 50-80% for typical workloads. Memory reduction and compression help but have much smaller impact than token cost optimization.",
+      "concept": "Model routing for cost optimization"
+    }
+  ]
+}
