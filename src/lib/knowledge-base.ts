@@ -1,139 +1,105 @@
-import { promises as fs } from "fs";
-import path from "path";
+/**
+ * Knowledge Base - Static Imports
+ * 
+ * This module provides knowledge base content for the AI tutor.
+ * Content is imported at build time to work reliably in serverless environments.
+ */
+
+// Static imports for all knowledge base files
+// These are bundled at build time, making them available in serverless
+
+// Module 1: Introduction
+import whatIsAgentcore from "@/content/knowledge-base/01-introduction/what-is-agentcore.md";
+import architectureOverview from "@/content/knowledge-base/01-introduction/architecture-overview.md";
+import keyConcepts from "@/content/knowledge-base/01-introduction/key-concepts.md";
+
+// Module 2: Core Services
+import runtimeService from "@/content/knowledge-base/02-core-services/runtime-service.md";
+import memoryService from "@/content/knowledge-base/02-core-services/memory-service.md";
+import gatewayService from "@/content/knowledge-base/02-core-services/gateway-service.md";
+import identityService from "@/content/knowledge-base/02-core-services/identity-service.md";
+
+// Module 3: Agent Patterns
+import toolSelectionPatterns from "@/content/knowledge-base/03-agent-patterns/tool-selection-patterns.md";
+
+// Module 4: Hands-On
+import buildingFirstAgent from "@/content/knowledge-base/04-hands-on/building-first-agent.md";
+
+// Module 5: Security
+import iamAndPermissions from "@/content/knowledge-base/05-security/iam-and-permissions.md";
+
+// Module 6: Operations
+import monitoringAndObservability from "@/content/knowledge-base/06-operations/monitoring-and-observability.md";
+
+// Module 7: Advanced
+import multiAgentOrchestration from "@/content/knowledge-base/07-advanced/multi-agent-orchestration.md";
+import agentEvaluation from "@/content/knowledge-base/07-advanced/agent-evaluation.md";
+import scalingStrategies from "@/content/knowledge-base/07-advanced/scaling-strategies.md";
+
+// Module 8: Deployment
+import testingStrategies from "@/content/knowledge-base/08-deployment/testing-strategies.md";
+import deploymentPatterns from "@/content/knowledge-base/08-deployment/deployment-patterns.md";
+import productionChecklist from "@/content/knowledge-base/08-deployment/production-checklist.md";
 
 /**
- * Mapping from curriculum module IDs to knowledge base directories
+ * Mapping from lesson IDs to knowledge base content
  */
-const MODULE_TO_KB_MAP: Record<string, string[]> = {
-  "01-introduction": ["01-introduction"],
-  "02-core-services": ["02-core-services"],
-  "03-agent-patterns": ["03-agent-patterns"],
-  "04-hands-on-build": ["04-hands-on"],
-  "05-security-iam": ["05-security"],
-  "06-operations": ["06-operations"],
-  "07-advanced-topics": ["07-advanced"],
-  "08-deployment": ["08-deployment"],
-};
-
-/**
- * Mapping from lesson IDs to specific knowledge base files
- * This provides more targeted content for each lesson
- */
-const LESSON_TO_KB_FILES: Record<string, string[]> = {
+const LESSON_CONTENT: Record<string, string[]> = {
   // Module 1: Introduction
-  "01-what-is-agentcore": ["01-introduction/what-is-agentcore.md"],
-  "02-architecture-overview": ["01-introduction/architecture-overview.md"],
-  "03-key-concepts": ["01-introduction/key-concepts.md"],
+  "01-what-is-agentcore": [whatIsAgentcore],
+  "02-architecture-overview": [architectureOverview],
+  "03-key-concepts": [keyConcepts],
 
   // Module 2: Core Services
-  "01-service-overview": [
-    "02-core-services/runtime-service.md",
-    "02-core-services/memory-service.md",
-    "02-core-services/gateway-service.md",
-    "02-core-services/identity-service.md",
-  ],
-  "02-runtime-service": ["02-core-services/runtime-service.md"],
-  "03-memory-service": ["02-core-services/memory-service.md"],
-  "04-tool-service": [
-    "02-core-services/gateway-service.md",
-    "03-agent-patterns/tool-selection-patterns.md",
-  ],
+  "01-service-overview": [runtimeService, memoryService, gatewayService, identityService],
+  "02-runtime-service": [runtimeService],
+  "03-memory-service": [memoryService],
+  "04-tool-service": [gatewayService, toolSelectionPatterns],
 
   // Module 3: Agent Patterns
-  "01-tool-selection": ["03-agent-patterns/tool-selection-patterns.md"],
-  "02-memory-patterns": ["02-core-services/memory-service.md"],
-  "03-custom-tools": [
-    "03-agent-patterns/tool-selection-patterns.md",
-    "04-hands-on/building-first-agent.md",
-  ],
+  "01-tool-selection": [toolSelectionPatterns],
+  "02-memory-patterns": [memoryService],
+  "03-custom-tools": [toolSelectionPatterns, buildingFirstAgent],
 
   // Module 4: Hands-On Build
-  "01-project-setup": ["04-hands-on/building-first-agent.md"],
-  "02-basic-agent": ["04-hands-on/building-first-agent.md"],
-  "03-adding-tools": [
-    "04-hands-on/building-first-agent.md",
-    "03-agent-patterns/tool-selection-patterns.md",
-  ],
+  "01-project-setup": [buildingFirstAgent],
+  "02-basic-agent": [buildingFirstAgent],
+  "03-adding-tools": [buildingFirstAgent, toolSelectionPatterns],
 
   // Module 5: Security & IAM
-  "01-iam-basics": ["05-security/iam-and-permissions.md"],
-  "02-data-privacy": ["05-security/iam-and-permissions.md"],
-  "03-security-best-practices": ["05-security/iam-and-permissions.md"],
+  "01-iam-basics": [iamAndPermissions],
+  "02-data-privacy": [iamAndPermissions],
+  "03-security-best-practices": [iamAndPermissions],
 
   // Module 6: Operations
-  "01-cost-optimization": ["06-operations/monitoring-and-observability.md"],
-  "02-monitoring": ["06-operations/monitoring-and-observability.md"],
-  "03-error-handling": ["06-operations/monitoring-and-observability.md"],
+  "01-cost-optimization": [monitoringAndObservability],
+  "02-monitoring": [monitoringAndObservability],
+  "03-error-handling": [monitoringAndObservability],
 
   // Module 7: Advanced Topics
-  "01-multi-agent": ["07-advanced/multi-agent-orchestration.md"],
-  "02-evaluation": ["07-advanced/agent-evaluation.md"],
-  "03-scaling": ["07-advanced/scaling-strategies.md"],
+  "01-multi-agent": [multiAgentOrchestration],
+  "02-evaluation": [agentEvaluation],
+  "03-scaling": [scalingStrategies],
 
   // Module 8: Deployment
-  "01-testing-strategies": ["08-deployment/testing-strategies.md"],
-  "02-deployment-patterns": ["08-deployment/deployment-patterns.md"],
-  "03-going-live": ["08-deployment/production-checklist.md"],
+  "01-testing-strategies": [testingStrategies],
+  "02-deployment-patterns": [deploymentPatterns],
+  "03-going-live": [productionChecklist],
 };
 
 /**
- * Get the base path for knowledge base files
+ * Mapping from module IDs to all content for that module
  */
-function getKnowledgeBasePath(): string {
-  // In Next.js, we need to resolve from the project root
-  const basePath = path.join(process.cwd(), "src", "content", "knowledge-base");
-  console.log("[KnowledgeBase] Base path:", basePath);
-  console.log("[KnowledgeBase] CWD:", process.cwd());
-  return basePath;
-}
-
-/**
- * Load a single knowledge base file
- */
-async function loadKnowledgeBaseFile(
-  relativePath: string
-): Promise<string | null> {
-  try {
-    const fullPath = path.join(getKnowledgeBasePath(), relativePath);
-    console.log("[KnowledgeBase] Loading file:", fullPath);
-    const content = await fs.readFile(fullPath, "utf-8");
-    console.log("[KnowledgeBase] Loaded file successfully, length:", content.length);
-    return content;
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.warn(`[KnowledgeBase] Could not load file: ${relativePath} - ${errorMessage}`);
-    return null;
-  }
-}
-
-/**
- * Load all files from a knowledge base directory
- */
-async function loadKnowledgeBaseDirectory(
-  dirName: string
-): Promise<string | null> {
-  try {
-    const dirPath = path.join(getKnowledgeBasePath(), dirName);
-    console.log("[KnowledgeBase] Loading directory:", dirPath);
-    const files = await fs.readdir(dirPath);
-    const mdFiles = files.filter((f) => f.endsWith(".md"));
-    console.log("[KnowledgeBase] Found files:", mdFiles);
-
-    const contents: string[] = [];
-    for (const file of mdFiles) {
-      const content = await loadKnowledgeBaseFile(path.join(dirName, file));
-      if (content) {
-        contents.push(content);
-      }
-    }
-
-    return contents.length > 0 ? contents.join("\n\n---\n\n") : null;
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.warn(`[KnowledgeBase] Could not load directory: ${dirName} - ${errorMessage}`);
-    return null;
-  }
-}
+const MODULE_CONTENT: Record<string, string[]> = {
+  "01-introduction": [whatIsAgentcore, architectureOverview, keyConcepts],
+  "02-core-services": [runtimeService, memoryService, gatewayService, identityService],
+  "03-agent-patterns": [toolSelectionPatterns],
+  "04-hands-on-build": [buildingFirstAgent],
+  "05-security-iam": [iamAndPermissions],
+  "06-operations": [monitoringAndObservability],
+  "07-advanced-topics": [multiAgentOrchestration, agentEvaluation, scalingStrategies],
+  "08-deployment": [testingStrategies, deploymentPatterns, productionChecklist],
+};
 
 /**
  * Load knowledge base content for a specific lesson
@@ -147,95 +113,53 @@ export async function loadLessonKnowledge(
   lessonId: string
 ): Promise<string> {
   console.log("[KnowledgeBase] Loading knowledge for:", { moduleId, lessonId });
-  const contents: string[] = [];
 
-  // First, try to load lesson-specific files
-  const lessonFiles = LESSON_TO_KB_FILES[lessonId];
-  console.log("[KnowledgeBase] Lesson files mapping:", lessonFiles);
-  
-  if (lessonFiles) {
-    for (const file of lessonFiles) {
-      const content = await loadKnowledgeBaseFile(file);
-      if (content) {
-        contents.push(content);
-      }
-    }
+  // First, try lesson-specific content
+  const lessonContent = LESSON_CONTENT[lessonId];
+  if (lessonContent && lessonContent.length > 0) {
+    console.log("[KnowledgeBase] Found lesson content, pieces:", lessonContent.length);
+    return lessonContent.join("\n\n---\n\n");
   }
 
-  // If no lesson-specific files found, fall back to module directory
-  if (contents.length === 0) {
-    console.log("[KnowledgeBase] No lesson files found, trying module directory");
-    const moduleDirs = MODULE_TO_KB_MAP[moduleId];
-    if (moduleDirs) {
-      for (const dir of moduleDirs) {
-        const content = await loadKnowledgeBaseDirectory(dir);
-        if (content) {
-          contents.push(content);
-        }
-      }
-    }
+  // Fall back to module content
+  const moduleContent = MODULE_CONTENT[moduleId];
+  if (moduleContent && moduleContent.length > 0) {
+    console.log("[KnowledgeBase] Using module content, pieces:", moduleContent.length);
+    return moduleContent.join("\n\n---\n\n");
   }
 
-  // Return combined content or a fallback message
-  if (contents.length === 0) {
-    console.log("[KnowledgeBase] No content found, using fallback");
-    return "No specific knowledge base content available for this lesson. Use your general knowledge of AI agents and AWS services to help the student.";
-  }
-
-  console.log("[KnowledgeBase] Loaded content pieces:", contents.length);
-  return contents.join("\n\n---\n\n");
+  // Fallback message
+  console.log("[KnowledgeBase] No content found, using fallback");
+  return "No specific knowledge base content available for this lesson. Use your general knowledge of AI agents and AWS services to help the student.";
 }
 
 /**
  * Load the full module context (all files for a module)
- * Useful for providing broader context when needed
  *
  * @param moduleId - The module ID
  * @returns All knowledge base content for the module
  */
 export async function loadModuleKnowledge(moduleId: string): Promise<string> {
-  const moduleDirs = MODULE_TO_KB_MAP[moduleId];
-  if (!moduleDirs) {
+  const moduleContent = MODULE_CONTENT[moduleId];
+  if (!moduleContent || moduleContent.length === 0) {
     return "";
   }
-
-  const contents: string[] = [];
-  for (const dir of moduleDirs) {
-    const content = await loadKnowledgeBaseDirectory(dir);
-    if (content) {
-      contents.push(content);
-    }
-  }
-
-  return contents.join("\n\n---\n\n");
+  return moduleContent.join("\n\n---\n\n");
 }
 
 /**
  * Get a summary of available knowledge base content
- * Useful for debugging and understanding coverage
  */
 export async function getKnowledgeBaseSummary(): Promise<{
-  modules: Record<string, string[]>;
+  modules: Record<string, number>;
   totalFiles: number;
 }> {
-  const basePath = getKnowledgeBasePath();
-  const summary: Record<string, string[]> = {};
+  const summary: Record<string, number> = {};
   let totalFiles = 0;
 
-  try {
-    const dirs = await fs.readdir(basePath);
-    for (const dir of dirs) {
-      const dirPath = path.join(basePath, dir);
-      const stat = await fs.stat(dirPath);
-      if (stat.isDirectory()) {
-        const files = await fs.readdir(dirPath);
-        const mdFiles = files.filter((f) => f.endsWith(".md"));
-        summary[dir] = mdFiles;
-        totalFiles += mdFiles.length;
-      }
-    }
-  } catch (error) {
-    console.error("Error getting knowledge base summary:", error);
+  for (const [moduleId, content] of Object.entries(MODULE_CONTENT)) {
+    summary[moduleId] = content.length;
+    totalFiles += content.length;
   }
 
   return { modules: summary, totalFiles };

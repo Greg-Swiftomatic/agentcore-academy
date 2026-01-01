@@ -1,8 +1,8 @@
 # AgentCore Academy - Project Progress
 
-## Current Status: Debugging 500 Error on AI Tutor API
+## Current Status: 500 Error Fixed - Pending Deployment
 
-**Last Updated:** December 31, 2025
+**Last Updated:** January 1, 2026
 
 ---
 
@@ -11,59 +11,60 @@
 ### Problem
 The AI tutor API (`/api/tutor`) returns 500 error in production on AWS Amplify.
 
-### Root Cause (Suspected)
-The `knowledge-base.ts` file uses `fs.readFile()` to load markdown content at runtime. In Next.js standalone mode on Amplify serverless, these files weren't being bundled with the API route.
+### Root Cause
+The `knowledge-base.ts` file used `fs.readFile()` to load markdown content at runtime. In Next.js standalone mode on Amplify serverless, the `outputFileTracingIncludes` config wasn't working reliably.
 
-### Fixes Applied
+### Solution Applied (January 1, 2026)
+
+**Embedded knowledge base at build time using webpack `asset/source`:**
+
+1. **Updated `next.config.mjs`** - Added webpack config to import .md files as raw text:
+   ```javascript
+   webpack: (config) => {
+     config.module.rules.push({
+       test: /\.md$/,
+       type: 'asset/source',
+     });
+     return config;
+   },
+   ```
+
+2. **Rewrote `src/lib/knowledge-base.ts`** - Changed from `fs.readFile()` to static imports:
+   - All 17 markdown files are now imported at build time
+   - Content is bundled directly into the serverless function
+   - No filesystem access required at runtime
+
+3. **Added TypeScript declaration** - `src/types/markdown.d.ts` for .md module types
+
+### Previous Fixes (December 31, 2025)
 
 1. **Added `output: 'standalone'`** to `next.config.mjs` (commit `7a97a25`)
    - Fixed initial 404 error - route is now being reached
 
 2. **Added `outputFileTracingIncludes`** to `next.config.mjs` (commit `0d6706c`)
-   ```javascript
-   outputFileTracingIncludes: {
-     '/api/tutor': ['./src/content/**/*'],
-   },
-   ```
-   - This should include the knowledge-base markdown files in the serverless bundle
+   - This didn't reliably work for serverless
 
-3. **Added detailed logging** to both files for debugging:
-   - `src/app/api/tutor/route.ts` - logs API key presence, request details
-   - `src/lib/knowledge-base.ts` - logs file paths, CWD, loading attempts
-
-### Commits Made This Session
-```
-0d6706c Include content files in standalone build for serverless API routes
-56ee180 Add detailed logging to knowledge-base for debugging serverless file access
-64ce964 Add detailed error logging to tutor API for debugging 500 error
-7a97a25 Enable standalone output for Amplify SSR support
-```
+3. **Added detailed logging** to both files for debugging
 
 ---
 
 ## Next Steps (Priority Order)
 
-### 1. Verify Environment Variable
+### 1. Push and Deploy
+- Commit and push the new changes
+- Wait for Amplify to deploy
+
+### 2. Verify Environment Variable
 Check AWS Amplify Console → Hosting → Environment variables:
 - Ensure `OPENROUTER_API_KEY` is set with valid OpenRouter API key
 
-### 2. Test After Deployment
-- Wait for Amplify to finish deploying commit `0d6706c`
+### 3. Test After Deployment
 - Go to live site and test AI tutor in a lesson
-- Check if 500 error is resolved
+- Verify 500 error is resolved
 
-### 3. If Still Failing - Check Logs
-Go to Amplify Console → Hosting → Logs (or CloudWatch):
-- Look for `[Tutor API]` log entries
-- Look for `[KnowledgeBase]` log entries
-- Check if API key is present (`true` or `false`)
-- Check what path it's trying to load files from
-
-### 4. Potential Further Fixes
-If file loading still fails in serverless:
-- **Option A:** Pre-bundle knowledge base content at build time using `import`
-- **Option B:** Move knowledge base to S3 and fetch at runtime
-- **Option C:** Embed knowledge base directly in the lesson JSON files
+### 4. Minor Issues to Address
+- Add `favicon.ico` (404 in browser)
+- Investigate RSC 404 for `/learn/01-introduction?_rsc=...` (may be expected behavior)
 
 ---
 
@@ -110,6 +111,12 @@ User → Amplify CloudFront → Next.js Standalone
 
 ## Files Modified This Session
 
+### January 1, 2026
+1. `next.config.mjs` - Added webpack config for .md imports
+2. `src/lib/knowledge-base.ts` - Rewrote to use static imports (build-time bundling)
+3. `src/types/markdown.d.ts` - Added TypeScript declarations for .md files
+
+### December 31, 2025
 1. `next.config.mjs` - Added standalone output + file tracing
 2. `src/app/api/tutor/route.ts` - Added debug logging
 3. `src/lib/knowledge-base.ts` - Added debug logging

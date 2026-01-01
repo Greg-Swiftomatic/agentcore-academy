@@ -15,6 +15,14 @@ const nextConfig = {
   outputFileTracingIncludes: {
     '/api/tutor': ['./src/content/**/*'],
   },
+  // Enable importing .md files as raw text
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.md$/,
+      type: 'asset/source',
+    });
+    return config;
+  },
 };
 
 export default nextConfig;
