@@ -1,0 +1,118 @@
+{
+  "moduleId": "02-core-services",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "scenario",
+      "question": "Your agent is in the middle of a multi-step task: it called get_order_status, received the result, and now needs to call cancel_order. During the LLM call for the next step, the request times out. What should the Runtime Service do?",
+      "options": [
+        { "id": "a", "text": "Start the entire conversation over from the beginning" },
+        { "id": "b", "text": "Retry the LLM call with exponential backoff, preserving the conversation state" },
+        { "id": "c", "text": "Return an error immediately and let the client handle retry" },
+        { "id": "d", "text": "Skip the cancel_order step and move to the next task" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "The Runtime Service implements automatic retry with exponential backoff. Crucially, it preserves conversation state (including the tool result from get_order_status) so the agent can continue from where it left off. Starting over would lose context; immediate error would waste the work already done.",
+      "concept": "Runtime retry and state preservation"
+    },
+    {
+      "id": "q2",
+      "type": "scenario",
+      "question": "Your agent's conversation history has grown to 50,000 tokens, but the LLM's context window is only 32,000 tokens. What does the Memory Service do?",
+      "options": [
+        { "id": "a", "text": "Truncates the oldest messages until it fits" },
+        { "id": "b", "text": "Returns an error asking the user to start a new session" },
+        { "id": "c", "text": "Summarizes older conversation into compressed form while keeping recent messages intact" },
+        { "id": "d", "text": "Splits the conversation across multiple LLM calls" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "The Memory Service uses automatic summarization for context window management. It compresses older conversation history into summaries (stored in Summary Store) while keeping recent messages intact for immediate context. Simple truncation would lose important information; splitting across calls doesn't maintain coherent context.",
+      "concept": "Context window management"
+    },
+    {
+      "id": "q3",
+      "type": "application",
+      "question": "You have a Lambda function that queries your inventory database. You want agents to use it as a tool. What's the correct integration path?",
+      "options": [
+        { "id": "a", "text": "Call the Lambda directly from your agent code using the AWS SDK" },
+        { "id": "b", "text": "Register the Lambda with Gateway Service, which exposes it as an MCP tool that agents can discover" },
+        { "id": "c", "text": "Deploy the Lambda inside the Runtime Service container" },
+        { "id": "d", "text": "Store the Lambda ARN in Memory Service for the agent to retrieve" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Gateway Service converts your existing APIs, Lambda functions, and services into MCP (Model Context Protocol) tools. Once registered, agents can discover and use these tools through the standard tool interface. This provides centralized management, authentication, and monitoring for all tool integrations.",
+      "concept": "Gateway tool registration"
+    },
+    {
+      "id": "q4",
+      "type": "critical",
+      "question": "The orchestration loop runs: LLM call → tool execution → LLM call → final response. If the tool execution fails with a transient error, what happens?",
+      "options": [
+        { "id": "a", "text": "The loop exits and returns the error to the user" },
+        { "id": "b", "text": "The error is passed back to the LLM, which decides whether to retry or use an alternative approach" },
+        { "id": "c", "text": "The Runtime automatically retries the tool with backoff, then passes the result (success or failure) to the LLM" },
+        { "id": "d", "text": "The loop restarts from the beginning with a fresh context" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "The Runtime Service handles tool execution with automatic retry and backoff for transient failures. After retries are exhausted, the result (success or final failure) is passed back to the LLM as a tool result. The LLM then decides how to proceed - it might try an alternative tool, ask for clarification, or explain the failure to the user.",
+      "concept": "Tool execution error handling"
+    },
+    {
+      "id": "q5",
+      "type": "scenario",
+      "question": "Your company has 500 internal APIs you want to expose as agent tools. Loading all 500 tool definitions into every agent request would exceed token limits and slow down responses. How does Gateway Service solve this?",
+      "options": [
+        { "id": "a", "text": "It doesn't - you must limit agents to 20 tools maximum" },
+        { "id": "b", "text": "It provides semantic search to dynamically load only relevant tools per request" },
+        { "id": "c", "text": "It automatically summarizes tool descriptions to save tokens" },
+        { "id": "d", "text": "It splits tools across multiple agent instances" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Gateway Service provides semantic search for tool discovery. Instead of loading all 500 tools, you search for tools relevant to the current request (e.g., 'order management tools') and load only those 5-10 tools into the agent context. This keeps token usage low and improves selection accuracy.",
+      "concept": "Scalable tool discovery"
+    },
+    {
+      "id": "q6",
+      "type": "application",
+      "question": "You need to store: (1) the current conversation messages, (2) the user's name and preferences, and (3) a summary of last week's conversations. Which Memory Service stores would you use?",
+      "options": [
+        { "id": "a", "text": "All three go in Session Store since they're all related to the user" },
+        { "id": "b", "text": "Session Store for messages, Entity Store for user info, Summary Store for past conversation summaries" },
+        { "id": "c", "text": "Entity Store for everything since it handles long-term persistence" },
+        { "id": "d", "text": "Summary Store for everything since it compresses data efficiently" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Each store has a specific purpose: Session Store holds short-term conversation messages (current session). Entity Store holds long-term knowledge about entities like users (name, preferences). Summary Store holds compressed historical context (last week's conversations). Using the right store for each data type optimizes performance and retrieval.",
+      "concept": "Memory store types"
+    },
+    {
+      "id": "q7",
+      "type": "scenario",
+      "question": "A request comes to Gateway Service with a valid API key, but that key has exceeded its rate limit. The request also has a malformed JSON body. In what order does Gateway process this, and what error is returned?",
+      "options": [
+        { "id": "a", "text": "Auth first, then rate limit - returns 429 Too Many Requests" },
+        { "id": "b", "text": "Validation first - returns 400 Bad Request for malformed JSON" },
+        { "id": "c", "text": "Rate limit first - returns 429 before checking anything else" },
+        { "id": "d", "text": "All checks run in parallel - returns whichever fails first" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "Gateway's request pipeline runs in order: Auth → Rate Limit → Validate → Route → Transform. Authentication passes (valid API key), but rate limit check fails, so 429 is returned before validation ever runs. The malformed JSON is never checked. This order prevents wasting resources validating requests from blocked clients.",
+      "concept": "Gateway request pipeline order"
+    },
+    {
+      "id": "q8",
+      "type": "critical",
+      "question": "Your agent streams responses to the user in real-time. Mid-stream, the agent decides it needs to call a tool. What does the Runtime Service do with the stream?",
+      "options": [
+        { "id": "a", "text": "Closes the stream, executes the tool, then opens a new stream for the rest" },
+        { "id": "b", "text": "Pauses the stream, executes the tool silently, then resumes streaming the final response" },
+        { "id": "c", "text": "Continues streaming a 'thinking...' indicator while the tool executes, then streams the result" },
+        { "id": "d", "text": "Streams tool call intent to the client, executes tool, streams result, then continues with LLM response" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "The Runtime's Response Streamer maintains the stream throughout the orchestration loop. It streams the tool call intent (so the UI can show 'Calling get_order_status...'), executes the tool, streams the result, then continues streaming the LLM's final response. This provides real-time visibility into what the agent is doing.",
+      "concept": "Streaming with tool execution"
+    }
+  ]
+}
