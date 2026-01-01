@@ -1,0 +1,149 @@
+{
+  "moduleId": "07-advanced-topics",
+  "exerciseId": "multi-agent-design",
+  "title": "Multi-Agent System Design",
+  "estimatedTime": "30 minutes",
+  "overview": "Design a multi-agent extension for your capstone project. Adding a specialist agent can dramatically improve capabilities for complex tasks while keeping each agent focused and maintainable.",
+  "objectives": [
+    "Identify tasks that would benefit from a specialist agent",
+    "Design the orchestration pattern between agents",
+    "Plan the handoff protocol between agents",
+    "Consider failure modes in multi-agent systems"
+  ],
+  "context": "Your capstone agent handles the common cases well. But what about the edge cases that require specialized expertise? A multi-agent architecture lets you delegate complex subtasks to specialist agents while your main agent stays focused on its core job. This exercise extends your capstone design with a second agent.",
+  "instructions": "Design a specialist agent that extends your capstone project. Think about what tasks your main agent struggles with or handles poorly, then design a specialist that excels at those specific tasks.\n\n**Design principle:** Each agent should be the best at ONE thing. The orchestrator routes to the right specialist based on the task.",
+  "deliverable": {
+    "type": "form",
+    "fields": [
+      {
+        "name": "main_agent_name",
+        "label": "Main Agent (from capstone)",
+        "type": "text",
+        "required": true,
+        "helpText": "Your original capstone agent"
+      },
+      {
+        "name": "main_agent_limitations",
+        "label": "Main Agent Limitations",
+        "type": "textarea",
+        "placeholder": "What does your main agent struggle with? What tasks would benefit from specialized handling?",
+        "required": true,
+        "minLength": 50,
+        "helpText": "Identify the gaps that a specialist could fill"
+      },
+      {
+        "name": "specialist_agent_name",
+        "label": "Specialist Agent Name",
+        "type": "text",
+        "required": true,
+        "helpText": "Give your specialist agent a descriptive name"
+      },
+      {
+        "name": "specialist_role",
+        "label": "Specialist Role & Expertise",
+        "type": "textarea",
+        "placeholder": "What is this specialist agent's area of expertise? What makes it better than the main agent at these tasks?",
+        "required": true,
+        "minLength": 50
+      },
+      {
+        "name": "specialist_triggers",
+        "label": "Handoff Triggers",
+        "type": "list",
+        "placeholder": "Add a trigger condition (e.g., 'User asks about technical troubleshooting')",
+        "required": true,
+        "minItems": 2,
+        "helpText": "When should the main agent hand off to the specialist?"
+      },
+      {
+        "name": "specialist_tools",
+        "label": "Specialist's Unique Tools",
+        "type": "list",
+        "placeholder": "Add a tool unique to the specialist...",
+        "required": true,
+        "minItems": 1,
+        "helpText": "What tools does the specialist have that the main agent doesn't?"
+      },
+      {
+        "name": "orchestration_pattern",
+        "label": "Orchestration Pattern",
+        "type": "select",
+        "options": [
+          "Router - Main agent decides when to delegate",
+          "Supervisor - Separate orchestrator manages both agents",
+          "Sequential - Main processes first, specialist refines",
+          "Parallel - Both agents process, results combined"
+        ],
+        "required": true,
+        "helpText": "How will agents coordinate?"
+      },
+      {
+        "name": "orchestration_details",
+        "label": "Orchestration Details",
+        "type": "textarea",
+        "placeholder": "Explain how the handoff works in detail. What context is passed? How does control return to the main agent?",
+        "required": true,
+        "minLength": 100
+      },
+      {
+        "name": "shared_context",
+        "label": "Shared Context",
+        "type": "textarea",
+        "placeholder": "What context needs to be shared between agents? How will you pass it?",
+        "required": true,
+        "helpText": "Conversation history? User preferences? Session state?"
+      },
+      {
+        "name": "failure_scenarios",
+        "label": "Failure Scenarios & Handling",
+        "type": "textarea",
+        "placeholder": "What happens if the specialist agent fails? How do you handle timeout? Disagreement between agents?",
+        "required": true,
+        "minLength": 100
+      },
+      {
+        "name": "architecture_diagram",
+        "label": "Architecture Diagram (ASCII)",
+        "type": "code",
+        "language": "text",
+        "placeholder": "Draw the architecture:\n\n  [User]\n    |\n    v\n[Main Agent] -----> [Specialist]\n    |                    |\n    v                    v\n [Tool 1]           [Tool 2]",
+        "required": true,
+        "helpText": "Visual representation of agent relationships"
+      }
+    ]
+  },
+  "successCriteria": [
+    "Clear rationale for why a second agent is needed",
+    "Specialist role is focused - does one thing well",
+    "Handoff triggers are specific and actionable",
+    "Orchestration pattern matches the use case",
+    "Context sharing is well-defined",
+    "Failure scenarios are addressed",
+    "Architecture diagram clearly shows agent relationships"
+  ],
+  "exampleSubmission": {
+    "main_agent_name": "SupportBot",
+    "main_agent_limitations": "SupportBot handles FAQs and order status well, but struggles with:\n\n1. **Technical troubleshooting** - When customers have issues using our product, SupportBot can only point to docs. It can't diagnose specific problems or walk through complex fixes.\n\n2. **Product recommendations** - When customers ask 'which product is right for me?', SupportBot gives generic answers. It doesn't understand customer needs well enough to recommend.\n\nA technical troubleshooting specialist would significantly improve resolution rate for 'my product isn't working' queries.",
+    "specialist_agent_name": "TechSupportSpecialist",
+    "specialist_role": "TechSupportSpecialist is an expert at diagnosing and resolving technical issues with our products. It understands common error messages, can walk users through diagnostic steps, and knows the troubleshooting decision trees for each product.\n\n**Why it's better:** Has access to technical diagnostics tool, knows troubleshooting flows, trained specifically on technical support conversations (more technical vocabulary and step-by-step instruction style).",
+    "specialist_triggers": [
+      "User mentions error message or error code",
+      "User says product 'isn't working', 'won't start', 'is broken'",
+      "User asks 'how do I fix...' for technical issue",
+      "SupportBot's FAQ search returns no results AND query is product-related",
+      "User explicitly asks for technical support"
+    ],
+    "specialist_tools": [
+      "run_diagnostics - Asks user diagnostic questions, analyzes responses to narrow down issue",
+      "lookup_error_code - Maps error codes to causes and solutions",
+      "get_product_specs - Retrieves technical specifications for troubleshooting",
+      "check_known_issues - Searches known issues database for matching problems"
+    ],
+    "orchestration_pattern": "Router - Main agent decides when to delegate",
+    "orchestration_details": "**Handoff flow:**\n\n1. User sends message to SupportBot\n2. SupportBot detects technical issue (keyword match or failed FAQ search)\n3. SupportBot responds: 'This looks like a technical issue. Let me connect you with our technical support specialist...'\n4. SupportBot invokes TechSupportSpecialist with:\n   - Full conversation history\n   - User's stated issue\n   - Any product mentions detected\n5. TechSupportSpecialist takes over the conversation\n6. When resolved (or needs escalation), TechSupportSpecialist hands back:\n   - Updated conversation history\n   - Resolution status (resolved/escalated/abandoned)\n   - Summary for SupportBot\n7. SupportBot can continue for non-technical follow-ups\n\n**Return triggers:**\n- 'Is there anything else?' and user asks non-technical question\n- User explicitly asks for something SupportBot handles\n- Issue resolved and follow-up is order/policy related",
+    "shared_context": "**Passed to specialist:**\n- Full conversation history (last 10 messages)\n- Session ID (for continuity)\n- Detected product name (if mentioned)\n- Handoff reason ('technical_issue_detected')\n\n**Passed back from specialist:**\n- Updated conversation history\n- Resolution status enum: RESOLVED | ESCALATED | ONGOING | USER_LEFT\n- Issue summary (1-2 sentences)\n- Any identified product/order for context\n\n**Shared via Memory Service:**\n- Both agents read/write to same session memory\n- Ensures context persists across handoffs",
+    "failure_scenarios": "**Specialist timeout (>30s):**\n- SupportBot apologizes for delay\n- Offers: (a) wait longer, (b) get callback, (c) email support\n- Logs timeout for investigation\n\n**Specialist error:**\n- SupportBot catches exception\n- Apologizes, offers to create support ticket\n- Logs full error context for debugging\n\n**Specialist can't resolve:**\n- TechSupportSpecialist recognizes it's stuck (3+ failed attempts)\n- Returns with status=ESCALATED\n- SupportBot creates ticket with full diagnostic history\n\n**User abandons during handoff:**\n- Conversation timeout triggers save-state\n- If user returns, context is restored\n- Tracked as metric for handoff quality\n\n**Conflicting responses:**\n- Not applicable for router pattern\n- In future parallel pattern: trust specialist over generalist for technical queries",
+    "architecture_diagram": "```\n                    [User]\n                      │\n                      ▼\n              ┌───────────────┐\n              │  API Gateway  │\n              └───────┬───────┘\n                      │\n                      ▼\n┌─────────────────────────────────────────┐\n│              SupportBot (Router)         │\n│  ┌─────────────┐    ┌────────────────┐  │\n│  │   FAQ Tool  │    │  Order Status  │  │\n│  └─────────────┘    └────────────────┘  │\n└─────────────────────┬───────────────────┘\n                      │\n          ┌───────────┴───────────┐\n          │  Technical trigger?   │\n          └───────────┬───────────┘\n                      │ Yes\n                      ▼\n┌─────────────────────────────────────────┐\n│         TechSupportSpecialist            │\n│  ┌────────────┐  ┌─────────────────┐    │\n│  │ Diagnostics│  │  Error Lookup   │    │\n│  └────────────┘  └─────────────────┘    │\n│  ┌────────────┐  ┌─────────────────┐    │\n│  │Product Spec│  │  Known Issues   │    │\n│  └────────────┘  └─────────────────┘    │\n└─────────────────────────────────────────┘\n                      │\n                      ▼\n            ┌─────────────────┐\n            │  Resolution or  │\n            │   Hand Back     │\n            └─────────────────┘\n```"
+  },
+  "tutorPrompt": "The student has designed a multi-agent extension for their capstone project. Review for: (1) Is the specialist's role well-defined and focused?, (2) Are handoff triggers clear enough for the router to decide?, (3) Is the orchestration pattern appropriate for the use case?, (4) Is context sharing sufficient for continuity?, (5) Are failure scenarios realistic and handled well? Provide specific feedback on making the multi-agent system robust."
+}

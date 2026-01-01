@@ -1,0 +1,135 @@
+{
+  "moduleId": "03-agent-patterns",
+  "exerciseId": "tool-spec-sheet",
+  "title": "Tool Specification Sheet",
+  "estimatedTime": "30 minutes",
+  "overview": "Create detailed specifications for the tools your capstone agent will use. Well-defined tools are the foundation of a reliable agent - vague tool descriptions lead to confusion and errors.",
+  "objectives": [
+    "Write clear, actionable tool descriptions",
+    "Define proper JSON schemas for tool parameters",
+    "Specify expected return values and error cases",
+    "Think through edge cases and failure modes"
+  ],
+  "context": "You learned that tool selection is driven by tool descriptions. The agent reads your descriptions to decide when to use each tool. Poor descriptions = wrong tool choices = frustrated users. This exercise forces you to think precisely about what each tool does, when it should be used, and what can go wrong.",
+  "instructions": "Create detailed specifications for at least 2 tools your capstone agent will use. For each tool, provide a complete specification including description, parameters, return values, and error handling.\n\n**Quality bar:** Your tool descriptions should be clear enough that someone who has never seen your codebase could understand exactly when and how to use each tool.",
+  "deliverable": {
+    "type": "form",
+    "fields": [
+      {
+        "name": "tool_1_name",
+        "label": "Tool 1: Name",
+        "type": "text",
+        "placeholder": "e.g., search_faq, get_order_status, create_task",
+        "required": true,
+        "helpText": "Use snake_case, be descriptive"
+      },
+      {
+        "name": "tool_1_description",
+        "label": "Tool 1: Description",
+        "type": "textarea",
+        "placeholder": "Write a detailed description. Include: what it does, when to use it, what it returns, and any limitations.",
+        "required": true,
+        "minLength": 100,
+        "helpText": "This is what the agent reads to decide whether to use this tool"
+      },
+      {
+        "name": "tool_1_parameters",
+        "label": "Tool 1: Parameters (JSON Schema)",
+        "type": "code",
+        "language": "json",
+        "placeholder": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"query\": {\n      \"type\": \"string\",\n      \"description\": \"The search query\"\n    }\n  },\n  \"required\": [\"query\"]\n}",
+        "required": true,
+        "helpText": "Define all parameters with types, descriptions, and constraints"
+      },
+      {
+        "name": "tool_1_returns",
+        "label": "Tool 1: Return Value",
+        "type": "textarea",
+        "placeholder": "Describe what the tool returns on success. Include the structure/format.",
+        "required": true
+      },
+      {
+        "name": "tool_1_errors",
+        "label": "Tool 1: Error Cases",
+        "type": "list",
+        "placeholder": "Add an error case...",
+        "required": true,
+        "minItems": 2,
+        "helpText": "List possible error conditions and what the tool returns for each"
+      },
+      {
+        "name": "tool_2_name",
+        "label": "Tool 2: Name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "tool_2_description",
+        "label": "Tool 2: Description",
+        "type": "textarea",
+        "required": true,
+        "minLength": 100
+      },
+      {
+        "name": "tool_2_parameters",
+        "label": "Tool 2: Parameters (JSON Schema)",
+        "type": "code",
+        "language": "json",
+        "required": true
+      },
+      {
+        "name": "tool_2_returns",
+        "label": "Tool 2: Return Value",
+        "type": "textarea",
+        "required": true
+      },
+      {
+        "name": "tool_2_errors",
+        "label": "Tool 2: Error Cases",
+        "type": "list",
+        "required": true,
+        "minItems": 2
+      },
+      {
+        "name": "tool_selection_logic",
+        "label": "Tool Selection Logic",
+        "type": "textarea",
+        "placeholder": "Describe how the agent should decide between these tools. When should it use Tool 1 vs Tool 2? Are there cases where it should use both?",
+        "required": true,
+        "helpText": "Help the agent understand when to use which tool"
+      }
+    ]
+  },
+  "successCriteria": [
+    "Tool names are descriptive and use snake_case",
+    "Descriptions clearly explain WHEN to use each tool (not just what it does)",
+    "Parameter schemas are valid JSON with proper types and descriptions",
+    "Required vs optional parameters are correctly specified",
+    "Return values describe the structure, not just 'returns data'",
+    "At least 2 error cases are identified per tool",
+    "Tool selection logic helps differentiate between tools"
+  ],
+  "exampleSubmission": {
+    "tool_1_name": "search_faq",
+    "tool_1_description": "Searches the FAQ knowledge base for answers to customer questions about policies, procedures, and product information.\n\nUSE THIS TOOL WHEN:\n- Customer asks about company policies (returns, shipping, warranties)\n- Customer asks 'how do I...' questions about using our products\n- Customer needs information that might be in our help documentation\n\nDO NOT USE THIS TOOL WHEN:\n- Customer is asking about a specific order (use get_order_status instead)\n- Customer wants to take an action like cancel/modify order\n\nRETURNS: Array of matching FAQ entries, sorted by relevance. If no matches found, returns empty array - consider rephrasing the search or asking the customer for clarification.",
+    "tool_1_parameters": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"query\": {\n      \"type\": \"string\",\n      \"description\": \"The search query - use keywords from the customer's question\"\n    },\n    \"category\": {\n      \"type\": \"string\",\n      \"enum\": [\"shipping\", \"returns\", \"billing\", \"product\", \"account\"],\n      \"description\": \"Optional category to narrow search results\"\n    },\n    \"max_results\": {\n      \"type\": \"integer\",\n      \"default\": 3,\n      \"minimum\": 1,\n      \"maximum\": 10,\n      \"description\": \"Maximum number of results to return\"\n    }\n  },\n  \"required\": [\"query\"]\n}",
+    "tool_1_returns": "Array of objects, each containing:\n- question (string): The FAQ question\n- answer (string): The FAQ answer, may contain markdown\n- category (string): The FAQ category\n- relevance_score (number 0-1): How well this matches the query\n\nExample: [{\"question\": \"What is your return policy?\", \"answer\": \"You can return...\", \"category\": \"returns\", \"relevance_score\": 0.92}]",
+    "tool_1_errors": [
+      "Empty array returned: No matching FAQs found. Agent should try rephrasing or ask customer for clarification.",
+      "Timeout error: FAQ service took too long. Agent should apologize and offer to try again.",
+      "Service unavailable: FAQ service is down. Agent should apologize and offer to create a support ticket."
+    ],
+    "tool_2_name": "get_order_status",
+    "tool_2_description": "Retrieves the current status of a customer order by order ID.\n\nUSE THIS TOOL WHEN:\n- Customer provides an order number and wants to know its status\n- Customer asks 'where is my order' and has provided order ID\n- Customer wants to know estimated delivery date\n\nDO NOT USE THIS TOOL WHEN:\n- Customer hasn't provided an order ID yet (ask them first)\n- Customer is asking about policies, not a specific order (use search_faq)\n\nNOTE: Order IDs are in format ORD-XXXXXX (ORD- followed by 6 digits). If customer provides a different format, ask them to verify.",
+    "tool_2_parameters": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"order_id\": {\n      \"type\": \"string\",\n      \"pattern\": \"^ORD-[0-9]{6}$\",\n      \"description\": \"Order ID in format ORD-XXXXXX\"\n    }\n  },\n  \"required\": [\"order_id\"]\n}",
+    "tool_2_returns": "Object containing:\n- order_id (string): The order ID\n- status (string): Current status - 'processing', 'shipped', 'delivered', 'cancelled'\n- items (array): List of items in the order\n- estimated_delivery (string|null): ISO date string or null if not yet shipped\n- tracking_number (string|null): Carrier tracking number or null\n- last_updated (string): ISO timestamp of last status update",
+    "tool_2_errors": [
+      "Order not found: The order ID doesn't exist. Agent should ask customer to double-check the order ID.",
+      "Invalid order ID format: Doesn't match ORD-XXXXXX pattern. Agent should explain the correct format.",
+      "Timeout error: Order service slow. Agent should apologize and retry once.",
+      "Rate limit exceeded: Too many requests. Agent should wait and retry."
+    ],
+    "tool_selection_logic": "The key differentiator is whether the customer is asking about a SPECIFIC ORDER vs GENERAL INFORMATION.\n\n- If customer mentions an order number (ORD-XXXXXX format): use get_order_status\n- If customer asks about policies, procedures, how to do something: use search_faq\n- If customer asks 'where is my order' but hasn't given order ID: ask for order ID first, then use get_order_status\n- If get_order_status returns nothing useful AND customer has a question about orders in general: follow up with search_faq for order-related policies"
+  },
+  "tutorPrompt": "The student has completed tool specifications for their capstone agent. Review each tool spec for: (1) clarity of description - would an AI agent know when to use this?, (2) completeness of parameters - are types and constraints defined?, (3) error handling - have they thought about what can go wrong?, (4) differentiation - is it clear when to use one tool vs another? Provide specific feedback on how to improve each tool spec."
+}

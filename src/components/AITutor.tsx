@@ -26,11 +26,15 @@ export function AITutor({
     {
       id: "welcome",
       role: "assistant",
-      content: `Welcome to this lesson! I'm your AI tutor, here to help you understand the material deeply.
+      content: `Welcome! I'm your AI tutor for this lesson.
 
-Feel free to ask me anything about the lesson content. I'll explain concepts, provide examples, and check your understanding as we go.
+I can help you:
+- **Understand concepts** - Ask me to explain anything
+- **Test your knowledge** - Request a quiz on the material
+- **Review your work** - Share code or exercise submissions for feedback
+- **Connect to your capstone** - Ask how this applies to your project
 
-What would you like to explore first?`,
+What would you like to explore?`,
     },
   ]);
   const [input, setInput] = useState("");
@@ -158,10 +162,16 @@ What would you like to explore first?`,
   };
 
   const suggestedQuestions = [
-    "Explain this concept",
-    "Give me an example",
-    "What are the key takeaways?",
-    "How does this relate to previous lessons?",
+    "Quiz me on this lesson",
+    "Explain the key concept",
+    "How does this apply to my capstone?",
+    "Review my code",
+  ];
+
+  const advancedActions = [
+    { label: "Challenge me", prompt: "Give me a challenging question about this material to test my understanding." },
+    { label: "Review my exercise", prompt: "I'd like you to review my exercise submission. Here's what I completed:" },
+    { label: "Debug help", prompt: "I'm stuck on something. Can you help me debug this issue?" },
   ];
 
   return (
@@ -215,20 +225,38 @@ What would you like to explore first?`,
 
       {/* Suggested Questions */}
       {messages.length === 1 && (
-        <div className="flex-shrink-0 px-4 pb-3">
-          <p className="text-[10px] text-text-muted uppercase tracking-wider mb-2">
-            Quick Actions
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {suggestedQuestions.map((q) => (
-              <button
-                key={q}
-                onClick={() => setInput(q)}
-                className="text-xs px-3 py-1.5 border border-dashed border-border-dashed text-text-secondary hover:border-cyan hover:text-cyan transition-colors"
-              >
-                {q}
-              </button>
-            ))}
+        <div className="flex-shrink-0 px-4 pb-3 space-y-3">
+          <div>
+            <p className="text-[10px] text-text-muted uppercase tracking-wider mb-2">
+              Quick Actions
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {suggestedQuestions.map((q) => (
+                <button
+                  key={q}
+                  onClick={() => setInput(q)}
+                  className="text-xs px-3 py-1.5 border border-dashed border-border-dashed text-text-secondary hover:border-cyan hover:text-cyan transition-colors"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-[10px] text-text-muted uppercase tracking-wider mb-2">
+              Advanced
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {advancedActions.map((action) => (
+                <button
+                  key={action.label}
+                  onClick={() => setInput(action.prompt)}
+                  className="text-xs px-3 py-1.5 border border-cyan/50 text-cyan/80 hover:border-cyan hover:text-cyan transition-colors"
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}

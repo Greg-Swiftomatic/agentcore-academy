@@ -1,0 +1,108 @@
+{
+  "moduleId": "01-introduction",
+  "exerciseId": "agent-idea-canvas",
+  "title": "Agent Idea Canvas",
+  "estimatedTime": "20 minutes",
+  "overview": "Define the AI agent you'll build as your capstone project. This exercise helps you think through what problem you want to solve and what capabilities your agent will need.",
+  "objectives": [
+    "Identify a specific problem your agent will solve",
+    "Define 3-5 capabilities your agent needs",
+    "List the tools and data sources required",
+    "Articulate why AgentCore is the right platform for this agent"
+  ],
+  "context": "Throughout this course, you'll be working toward a capstone project where you build and deploy a real agent. Starting with a clear vision makes all the difference. The best agent ideas are specific (not 'help with everything'), achievable (can be built with AgentCore's capabilities), and useful (solves a real problem you or others have).",
+  "instructions": "Complete the Agent Idea Canvas below. Think carefully about each section - your answers here will guide your learning throughout the course.\n\n**Tips for a good agent idea:**\n- Be specific: 'Answer customer questions about our return policy' is better than 'help customers'\n- Be realistic: Start with something you can build in a few hours, not a world-changing AI\n- Be passionate: Pick something you actually want to use or that solves a real problem you've seen",
+  "deliverable": {
+    "type": "form",
+    "fields": [
+      {
+        "name": "agent_name",
+        "label": "Agent Name",
+        "type": "text",
+        "placeholder": "e.g., ReturnBot, ResearchHelper, DataQuery",
+        "required": true,
+        "helpText": "Give your agent a memorable name"
+      },
+      {
+        "name": "problem_statement",
+        "label": "Problem Statement",
+        "type": "textarea",
+        "placeholder": "Describe the specific problem your agent will solve. Who has this problem? Why is it painful? Example: 'Customer support teams spend 40% of their time answering the same FAQ questions. This is tedious for agents and slow for customers.'",
+        "required": true,
+        "minLength": 50,
+        "helpText": "Be specific about the problem and who experiences it"
+      },
+      {
+        "name": "target_user",
+        "label": "Target User",
+        "type": "text",
+        "placeholder": "e.g., E-commerce customers, Sales team members, Software developers",
+        "required": true,
+        "helpText": "Who will interact with your agent?"
+      },
+      {
+        "name": "capabilities",
+        "label": "Core Capabilities (3-5)",
+        "type": "list",
+        "placeholder": "Add a capability...",
+        "required": true,
+        "minItems": 3,
+        "maxItems": 5,
+        "helpText": "What must your agent be able to do? List the essential capabilities."
+      },
+      {
+        "name": "tools_needed",
+        "label": "Tools/Data Sources Needed",
+        "type": "list",
+        "placeholder": "Add a tool or data source...",
+        "required": true,
+        "minItems": 1,
+        "helpText": "What tools will your agent need? What data will it access? (e.g., FAQ database, Order API, Calendar service)"
+      },
+      {
+        "name": "why_agentcore",
+        "label": "Why AgentCore?",
+        "type": "textarea",
+        "placeholder": "Why is AgentCore the right platform for this agent? Which AgentCore features will you use?",
+        "required": true,
+        "helpText": "Connect your agent idea to what you learned about AgentCore"
+      },
+      {
+        "name": "success_metric",
+        "label": "Success Metric",
+        "type": "text",
+        "placeholder": "e.g., 'Correctly answers 80% of FAQ questions without human intervention'",
+        "required": true,
+        "helpText": "How will you know your agent is working well?"
+      }
+    ]
+  },
+  "successCriteria": [
+    "Problem statement is specific and describes a real pain point",
+    "Target user is clearly identified",
+    "At least 3 realistic capabilities are listed",
+    "At least 1 tool or data source is identified",
+    "Success metric is measurable",
+    "Reasoning for AgentCore connects to platform capabilities"
+  ],
+  "exampleSubmission": {
+    "agent_name": "SupportBot",
+    "problem_statement": "Our customer support team receives 200+ emails daily, with 60% being repetitive questions about shipping, returns, and order status. Agents spend hours copying and pasting the same answers, leading to burnout and inconsistent responses. Customers wait 4-6 hours for answers to simple questions.",
+    "target_user": "Online shoppers who have questions about their orders",
+    "capabilities": [
+      "Search FAQ knowledge base for relevant answers",
+      "Look up order status by order number",
+      "Explain return and refund policies clearly",
+      "Escalate complex issues to human agents",
+      "Remember context within a conversation"
+    ],
+    "tools_needed": [
+      "FAQ search tool (connects to our help center)",
+      "Order status API (connects to Shopify)",
+      "Escalation tool (creates Zendesk ticket)"
+    ],
+    "why_agentcore": "AgentCore's Tool Service lets me connect to our existing Shopify and Zendesk systems. The Memory Service will help maintain conversation context so customers don't have to repeat themselves. The managed infrastructure means I don't have to worry about scaling during Black Friday.",
+    "success_metric": "Correctly resolves 70% of customer inquiries without human intervention, with average response time under 30 seconds"
+  },
+  "tutorPrompt": "The student has completed the Agent Idea Canvas exercise. Review their submission and provide constructive feedback. Check if their problem statement is specific enough, if their capabilities are realistic for AgentCore, and if their success metric is measurable. Suggest improvements where needed, but be encouraging - this is their first step toward building something real."
+}

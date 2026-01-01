@@ -221,6 +221,45 @@
           "estimatedDuration": "20 minutes"
         }
       ]
+    },
+    {
+      "id": "09-capstone",
+      "title": "Capstone Project",
+      "description": "Build and deploy your own production AI agent from start to finish.",
+      "estimatedDuration": "4-8 hours",
+      "prerequisites": ["08-deployment"],
+      "lessons": [
+        {
+          "id": "01-choose-your-project",
+          "title": "Choose Your Project",
+          "description": "Select a capstone project and define your requirements.",
+          "estimatedDuration": "30 minutes"
+        },
+        {
+          "id": "02-architecture-design",
+          "title": "Architecture Design",
+          "description": "Design your agent's architecture using AgentCore services.",
+          "estimatedDuration": "45 minutes"
+        },
+        {
+          "id": "03-implementation",
+          "title": "Implementation",
+          "description": "Build your agent with custom tools and configuration.",
+          "estimatedDuration": "2-3 hours"
+        },
+        {
+          "id": "04-testing-and-iteration",
+          "title": "Testing and Iteration",
+          "description": "Test thoroughly and improve based on feedback.",
+          "estimatedDuration": "1-2 hours"
+        },
+        {
+          "id": "05-deploy-and-celebrate",
+          "title": "Deploy and Celebrate",
+          "description": "Deploy to production and share your accomplishment.",
+          "estimatedDuration": "1 hour"
+        }
+      ]
     }
   ]
 }

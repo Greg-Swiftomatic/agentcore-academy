@@ -1,0 +1,143 @@
+{
+  "moduleId": "02-core-services",
+  "exerciseId": "service-map",
+  "title": "Service Architecture Map",
+  "estimatedTime": "25 minutes",
+  "overview": "Map out which AgentCore services your capstone agent will use and how they'll work together. This exercise connects what you learned about core services to your specific project.",
+  "objectives": [
+    "Identify which AgentCore services your agent requires",
+    "Understand why each service is (or isn't) needed for your use case",
+    "Visualize how data flows between services",
+    "Anticipate integration points and dependencies"
+  ],
+  "context": "In the previous module, you learned about AgentCore's five core services: Runtime, Memory, Tool, Identity, and Gateway. Now you'll apply that knowledge to your capstone project. Not every agent needs every service - understanding which ones you need and why is crucial for a clean architecture.",
+  "instructions": "Complete the service map for your capstone agent. For each service, indicate whether you'll use it and explain why or why not. Then describe how data will flow between the services you're using.\n\n**Remember your agent idea from Module 01** - refer back to your Agent Idea Canvas as you complete this exercise.",
+  "deliverable": {
+    "type": "form",
+    "fields": [
+      {
+        "name": "agent_name",
+        "label": "Agent Name (from Module 01)",
+        "type": "text",
+        "required": true,
+        "helpText": "Enter the same agent name from your Idea Canvas"
+      },
+      {
+        "name": "runtime_service",
+        "label": "Runtime Service",
+        "type": "select",
+        "options": ["Required", "Optional", "Not Needed"],
+        "required": true
+      },
+      {
+        "name": "runtime_reasoning",
+        "label": "Runtime Service - Why?",
+        "type": "textarea",
+        "placeholder": "Explain why you do/don't need the Runtime Service. What model will you use? What configuration?",
+        "required": true,
+        "helpText": "The Runtime Service executes agent logic. Consider: model selection, response configuration, execution environment."
+      },
+      {
+        "name": "memory_service",
+        "label": "Memory Service",
+        "type": "select",
+        "options": ["Required", "Optional", "Not Needed"],
+        "required": true
+      },
+      {
+        "name": "memory_reasoning",
+        "label": "Memory Service - Why?",
+        "type": "textarea",
+        "placeholder": "Explain your memory needs. How many turns of context? Any long-term memory?",
+        "required": true,
+        "helpText": "The Memory Service manages conversation context and persistent memory. Consider: conversation length, cross-session memory, user preferences."
+      },
+      {
+        "name": "tool_service",
+        "label": "Tool Service",
+        "type": "select",
+        "options": ["Required", "Optional", "Not Needed"],
+        "required": true
+      },
+      {
+        "name": "tool_reasoning",
+        "label": "Tool Service - Why?",
+        "type": "textarea",
+        "placeholder": "List the tools your agent needs and why. How will they be implemented?",
+        "required": true,
+        "helpText": "The Tool Service manages tool definitions and execution. Consider: what actions your agent takes, what data it accesses."
+      },
+      {
+        "name": "identity_service",
+        "label": "Identity Service",
+        "type": "select",
+        "options": ["Required", "Optional", "Not Needed"],
+        "required": true
+      },
+      {
+        "name": "identity_reasoning",
+        "label": "Identity Service - Why?",
+        "type": "textarea",
+        "placeholder": "Explain your authentication/authorization needs. Does your agent need to know who's talking to it?",
+        "required": true,
+        "helpText": "The Identity Service manages user authentication and authorization. Consider: personalization, access control, user-specific data."
+      },
+      {
+        "name": "gateway_service",
+        "label": "Gateway Service",
+        "type": "select",
+        "options": ["Required", "Optional", "Not Needed"],
+        "required": true
+      },
+      {
+        "name": "gateway_reasoning",
+        "label": "Gateway Service - Why?",
+        "type": "textarea",
+        "placeholder": "How will users access your agent? Web app? API? Chat widget?",
+        "required": true,
+        "helpText": "The Gateway Service exposes your agent via APIs. Consider: how users will interact, rate limiting, API design."
+      },
+      {
+        "name": "data_flow",
+        "label": "Data Flow Description",
+        "type": "textarea",
+        "placeholder": "Describe how a typical request flows through your agent. Start with 'User sends a message...' and trace through each service.",
+        "required": true,
+        "minLength": 100,
+        "helpText": "Walk through a typical interaction step by step"
+      },
+      {
+        "name": "integration_concerns",
+        "label": "Integration Concerns",
+        "type": "textarea",
+        "placeholder": "What challenges do you anticipate when connecting these services? Any external systems to integrate?",
+        "required": false,
+        "helpText": "Think ahead about potential difficulties"
+      }
+    ]
+  },
+  "successCriteria": [
+    "All five services have a clear Required/Optional/Not Needed designation",
+    "Each service choice is justified with specific reasoning",
+    "Reasoning connects to the agent's actual capabilities (from Module 01)",
+    "Data flow description traces a complete request through the system",
+    "Runtime Service is marked Required (all agents need it)",
+    "At least one other service beyond Runtime is marked Required"
+  ],
+  "exampleSubmission": {
+    "agent_name": "SupportBot",
+    "runtime_service": "Required",
+    "runtime_reasoning": "Required for all agents. I'll use Claude 3 Sonnet for the right balance of capability and cost. Configuration: max_tokens=1024, temperature=0.7 for helpful but consistent responses.",
+    "memory_service": "Required",
+    "memory_reasoning": "Customers often refer to earlier parts of the conversation ('the order I mentioned'). I need sliding window memory of 10 messages. No cross-session memory needed - each support conversation is independent.",
+    "tool_service": "Required",
+    "tool_reasoning": "Three tools needed: (1) search_faq to find relevant help articles, (2) get_order_status to look up order information, (3) escalate_to_human to create support tickets. All implemented as Lambda functions.",
+    "identity_service": "Optional",
+    "identity_reasoning": "Could be useful for remembering customer preferences, but MVP doesn't require it. Customers will provide order numbers manually. Will add in v2 for automatic order lookup.",
+    "gateway_service": "Required",
+    "gateway_reasoning": "Agent will be embedded as a chat widget on our website. Need HTTP API with streaming support for real-time responses. Will add rate limiting (60 req/min per session) to prevent abuse.",
+    "data_flow": "User sends a message via chat widget → Gateway Service receives request, validates session → Runtime Service processes message with conversation history from Memory Service → Agent decides to use search_faq tool → Tool Service executes Lambda, returns results → Agent formulates response → Response sent back through Gateway → Memory Service stores the exchange for context",
+    "integration_concerns": "Main concern: our FAQ content is in Notion, need to sync to a searchable format. Order API requires authentication - need to securely store API keys. May need to handle API rate limits gracefully."
+  },
+  "tutorPrompt": "The student has completed the Service Architecture Map exercise for their capstone agent. Review their service selections and reasoning. Check that: Runtime is marked Required, their reasoning connects to their specific agent capabilities, their data flow is complete, and they've thought about integration challenges. Suggest any services they might have overlooked based on their agent's needs."
+}

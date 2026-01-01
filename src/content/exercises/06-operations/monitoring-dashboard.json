@@ -1,0 +1,154 @@
+{
+  "moduleId": "06-operations",
+  "exerciseId": "monitoring-dashboard",
+  "title": "Monitoring Dashboard Design",
+  "estimatedTime": "25 minutes",
+  "overview": "Design a monitoring dashboard for your capstone agent. In production, you need visibility into what's happening - both for debugging issues and for understanding how well your agent serves users.",
+  "objectives": [
+    "Identify the key metrics for your agent's health and performance",
+    "Design meaningful alerts that catch real problems without noise",
+    "Plan dashboards that help you understand agent behavior",
+    "Think proactively about operational visibility"
+  ],
+  "context": "A deployed agent without monitoring is like flying blind. You need to know: Is it working? Is it fast enough? Are users getting help? Are costs under control? This exercise helps you design the observability layer for your capstone agent.",
+  "instructions": "Design a monitoring strategy for your capstone agent. Think about what you need to see at a glance (dashboard), what should wake you up at 3am (critical alerts), and what data you need for debugging issues.\n\n**Key principle:** Alert on symptoms (user impact), not causes (technical metrics). Users don't care if CPU is high - they care if the agent is slow.",
+  "deliverable": {
+    "type": "form",
+    "fields": [
+      {
+        "name": "agent_name",
+        "label": "Agent Name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "health_metrics",
+        "label": "Health Metrics (SLIs)",
+        "type": "list",
+        "placeholder": "Add a health metric (e.g., 'Response latency p99')",
+        "required": true,
+        "minItems": 3,
+        "helpText": "What metrics indicate your agent is healthy? These are your Service Level Indicators."
+      },
+      {
+        "name": "business_metrics",
+        "label": "Business Metrics",
+        "type": "list",
+        "placeholder": "Add a business metric (e.g., 'Questions resolved without escalation')",
+        "required": true,
+        "minItems": 2,
+        "helpText": "What metrics show your agent is providing value? Think outcomes, not just operations."
+      },
+      {
+        "name": "critical_alerts",
+        "label": "Critical Alerts (page immediately)",
+        "type": "list",
+        "placeholder": "Add a critical alert condition...",
+        "required": true,
+        "minItems": 2,
+        "helpText": "What conditions should wake you up at 3am? These should indicate real user impact."
+      },
+      {
+        "name": "warning_alerts",
+        "label": "Warning Alerts (review next business day)",
+        "type": "list",
+        "placeholder": "Add a warning alert condition...",
+        "required": true,
+        "minItems": 2,
+        "helpText": "What conditions are concerning but not urgent?"
+      },
+      {
+        "name": "dashboard_panels",
+        "label": "Dashboard Panels",
+        "type": "textarea",
+        "placeholder": "Describe each panel on your dashboard. What does it show? Why is it there?",
+        "required": true,
+        "minLength": 100,
+        "helpText": "Design a dashboard layout - what would you want to see at a glance?"
+      },
+      {
+        "name": "log_fields",
+        "label": "Structured Log Fields",
+        "type": "list",
+        "placeholder": "Add a log field (e.g., 'session_id', 'tool_used', 'response_time_ms')",
+        "required": true,
+        "minItems": 5,
+        "helpText": "What fields should be in every log line for easy debugging?"
+      },
+      {
+        "name": "cost_monitoring",
+        "label": "Cost Monitoring Strategy",
+        "type": "textarea",
+        "placeholder": "How will you track and control costs? What alerts will you set?",
+        "required": true,
+        "helpText": "AI costs can spike unexpectedly - how will you keep them under control?"
+      },
+      {
+        "name": "debugging_runbook",
+        "label": "Debugging Runbook",
+        "type": "textarea",
+        "placeholder": "If your agent breaks, what steps would you follow to debug? What logs would you check first?",
+        "required": true,
+        "minLength": 100,
+        "helpText": "Document your debugging process before you need it"
+      }
+    ]
+  },
+  "successCriteria": [
+    "Health metrics include latency, error rate, and availability",
+    "Business metrics measure user outcomes, not just technical performance",
+    "Critical alerts focus on user impact, not internal metrics",
+    "Dashboard design shows clear hierarchy of importance",
+    "Log fields enable debugging without being excessive",
+    "Cost monitoring has specific thresholds and actions",
+    "Debugging runbook is actionable, not vague"
+  ],
+  "exampleSubmission": {
+    "agent_name": "SupportBot",
+    "health_metrics": [
+      "Response latency p99 (target: <5s)",
+      "Error rate (target: <1%)",
+      "Availability - % of requests that succeed (target: 99.5%)",
+      "Tool execution success rate per tool",
+      "Memory service latency p50"
+    ],
+    "business_metrics": [
+      "Resolution rate - % of conversations resolved without escalation (target: 70%)",
+      "First response time - time from user message to first agent response",
+      "Conversation length - average turns per conversation (lower is often better)",
+      "Escalation rate - % of conversations sent to human support",
+      "Repeat contact rate - users who come back within 24h for same issue"
+    ],
+    "critical_alerts": [
+      "Error rate > 5% for 5 minutes - Something is broken, users are impacted",
+      "Response latency p99 > 30s for 5 minutes - Agent is too slow, users abandoning",
+      "Zero successful invocations for 3 minutes - Agent may be completely down",
+      "Escalation rate > 50% for 1 hour - Agent not helping, flooding human support"
+    ],
+    "warning_alerts": [
+      "Error rate > 2% for 15 minutes - Elevated errors, investigate soon",
+      "Tool failure rate > 10% for any tool - Specific tool having issues",
+      "Daily cost exceeds 150% of average - Unusual usage pattern",
+      "Response latency p50 > 3s - General slowness, not critical but degraded"
+    ],
+    "dashboard_panels": "**Top Row - At a Glance (most important):**\n1. Current Error Rate (big number, red if >1%)\n2. Response Latency p99 (big number, amber if >5s)\n3. Active Conversations (count of in-progress sessions)\n4. Resolution Rate last 1h (big number with trend arrow)\n\n**Middle Row - Traffic & Performance:**\n5. Requests per minute (line chart, 1h window)\n6. Latency distribution (heatmap, p50/p90/p99)\n7. Error breakdown by type (pie chart)\n\n**Bottom Row - Tools & Business:**\n8. Tool usage breakdown (bar chart - which tools used most)\n9. Tool success rate per tool (table with sparklines)\n10. Escalation rate over time (line chart, 24h)\n11. Top FAQ queries (table of most common questions)\n\n**Right Sidebar - Costs:**\n12. Today's Bedrock cost (number with daily trend)\n13. Cost per conversation (derived metric)",
+    "log_fields": [
+      "timestamp - ISO 8601 format",
+      "session_id - Unique conversation identifier",
+      "request_id - Unique request identifier for tracing",
+      "user_id - If authenticated (null otherwise)",
+      "message_type - 'user' or 'assistant'",
+      "tool_name - Which tool was invoked (null if none)",
+      "tool_success - true/false for tool execution",
+      "response_time_ms - Total time to generate response",
+      "model_id - Which Bedrock model was used",
+      "token_count_in - Input tokens for cost tracking",
+      "token_count_out - Output tokens for cost tracking",
+      "error_type - Type of error if any (null on success)",
+      "escalated - true if conversation was escalated"
+    ],
+    "cost_monitoring": "**Daily budget:** $50/day with alerts at:\n- $40 (80%) - Warning, review usage patterns\n- $60 (120%) - Critical, investigate immediately\n\n**Per-conversation tracking:**\n- Log tokens per conversation\n- Alert if any single conversation exceeds $0.50 (might indicate loop)\n\n**Monthly review:**\n- Cost per resolution vs cost of human support\n- Identify expensive query patterns\n- Optimize prompts to reduce token usage\n\n**Cost reduction levers:**\n- Rate limit per user to prevent abuse\n- Cache frequent FAQ lookups\n- Use smaller model for simple queries (future)",
+    "debugging_runbook": "**When alert fires:**\n\n1. **Check error rate alert:**\n   - Open CloudWatch Logs Insights\n   - Query: `fields @timestamp, error_type, session_id | filter error_type != null | sort @timestamp desc | limit 50`\n   - Look for patterns: same error type? same tool? same time?\n\n2. **Check latency alert:**\n   - Query: `fields @timestamp, response_time_ms, tool_name | filter response_time_ms > 5000 | sort response_time_ms desc`\n   - Is it model latency or tool latency?\n   - Check Bedrock service health page\n\n3. **Check tool failures:**\n   - Query: `fields @timestamp, tool_name, error_type | filter tool_success = false | stats count by tool_name, error_type`\n   - Check external service status (Zendesk, etc.)\n   - Check Lambda logs for specific tool\n\n4. **Full conversation trace:**\n   - Get session_id from logs\n   - Query: `fields @timestamp, @message | filter session_id = 'xxx' | sort @timestamp asc`\n   - Replay conversation to understand what happened\n\n5. **Escalation:**\n   - If can't resolve in 15 min, post in #incidents Slack channel\n   - Include: alert details, what you've checked, current hypothesis"
+  },
+  "tutorPrompt": "The student has designed a monitoring strategy for their capstone agent. Review for: (1) Are health metrics focused on user impact?, (2) Do critical alerts avoid noise but catch real issues?, (3) Is the dashboard design useful for quick assessment?, (4) Are log fields sufficient for debugging?, (5) Is cost monitoring proactive? Provide specific feedback on improving their observability posture."
+}

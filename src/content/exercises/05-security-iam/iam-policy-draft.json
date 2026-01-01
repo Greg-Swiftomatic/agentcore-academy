@@ -1,0 +1,133 @@
+{
+  "moduleId": "05-security-iam",
+  "exerciseId": "iam-policy-draft",
+  "title": "IAM Policy Draft",
+  "estimatedTime": "25 minutes",
+  "overview": "Create a least-privilege IAM policy for your capstone agent. Security isn't an afterthought - it's built into the design from the start.",
+  "objectives": [
+    "Apply the principle of least privilege to your agent's permissions",
+    "Identify the specific AWS actions your agent needs",
+    "Restrict resource access to only what's necessary",
+    "Consider security implications of tool integrations"
+  ],
+  "context": "Your agent will run with an IAM role that defines what AWS resources it can access. Too many permissions = security risk. Too few = broken agent. The goal is finding the minimum permissions needed for your agent to function correctly.",
+  "instructions": "Design the IAM policy for your capstone agent. Think through every AWS action your agent needs to perform, then write a policy that grants exactly those permissions and nothing more.\n\n**Remember:** Start restrictive, add permissions as needed. It's easier to add permissions than to clean up over-permissioned roles after a security incident.",
+  "deliverable": {
+    "type": "form",
+    "fields": [
+      {
+        "name": "agent_name",
+        "label": "Agent Name",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "bedrock_permissions",
+        "label": "Bedrock Permissions Needed",
+        "type": "checklist",
+        "options": [
+          {"value": "InvokeModel", "label": "bedrock:InvokeModel - Call foundation models"},
+          {"value": "InvokeModelWithResponseStream", "label": "bedrock:InvokeModelWithResponseStream - Streaming responses"},
+          {"value": "ListFoundationModels", "label": "bedrock:ListFoundationModels - List available models"},
+          {"value": "GetFoundationModel", "label": "bedrock:GetFoundationModel - Get model details"}
+        ],
+        "required": true,
+        "helpText": "Which Bedrock actions does your agent need?"
+      },
+      {
+        "name": "bedrock_model_restriction",
+        "label": "Model Restriction",
+        "type": "text",
+        "placeholder": "e.g., anthropic.claude-3-sonnet* or * for all models",
+        "required": true,
+        "helpText": "Which models should your agent be allowed to use?"
+      },
+      {
+        "name": "additional_services",
+        "label": "Additional AWS Services Needed",
+        "type": "list",
+        "placeholder": "Add a service (e.g., 's3:GetObject for reading FAQ data')",
+        "required": false,
+        "helpText": "What other AWS services do your tools need to access?"
+      },
+      {
+        "name": "external_integrations",
+        "label": "External Service Integrations",
+        "type": "list",
+        "placeholder": "Add an external service (e.g., 'Shopify API for order data')",
+        "required": false,
+        "helpText": "What non-AWS services do your tools connect to?"
+      },
+      {
+        "name": "secrets_needed",
+        "label": "Secrets/Credentials Needed",
+        "type": "list",
+        "placeholder": "Add a secret (e.g., 'Shopify API key', 'Database password')",
+        "required": false,
+        "helpText": "What secrets does your agent need access to?"
+      },
+      {
+        "name": "secrets_storage",
+        "label": "Secrets Storage Strategy",
+        "type": "select",
+        "options": [
+          "AWS Secrets Manager",
+          "AWS Systems Manager Parameter Store",
+          "Environment Variables",
+          "Not applicable - no secrets needed"
+        ],
+        "required": true,
+        "helpText": "How will you securely store credentials?"
+      },
+      {
+        "name": "iam_policy",
+        "label": "IAM Policy (JSON)",
+        "type": "code",
+        "language": "json",
+        "placeholder": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [...],\n      \"Resource\": [...]\n    }\n  ]\n}",
+        "required": true,
+        "helpText": "Write the complete IAM policy for your agent"
+      },
+      {
+        "name": "security_considerations",
+        "label": "Security Considerations",
+        "type": "textarea",
+        "placeholder": "What security risks does your agent have? How are you mitigating them?",
+        "required": true,
+        "minLength": 50,
+        "helpText": "Think about data access, PII handling, injection risks, etc."
+      }
+    ]
+  },
+  "successCriteria": [
+    "Policy uses specific actions, not wildcards like 'bedrock:*'",
+    "Resources are scoped appropriately (not 'Resource': '*' everywhere)",
+    "All services the agent needs are accounted for",
+    "Secrets storage strategy is secure (not environment variables for production)",
+    "Security considerations show thoughtful risk analysis",
+    "Policy is valid JSON and follows AWS policy structure"
+  ],
+  "exampleSubmission": {
+    "agent_name": "SupportBot",
+    "bedrock_permissions": ["InvokeModel", "InvokeModelWithResponseStream"],
+    "bedrock_model_restriction": "anthropic.claude-3-sonnet*",
+    "additional_services": [
+      "s3:GetObject - Read FAQ data from S3 bucket",
+      "dynamodb:GetItem - Look up order data",
+      "dynamodb:Query - Search orders by customer",
+      "logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents - CloudWatch logging"
+    ],
+    "external_integrations": [
+      "Zendesk API - Create support tickets for escalation",
+      "SendGrid API - Send email confirmations"
+    ],
+    "secrets_needed": [
+      "Zendesk API key",
+      "SendGrid API key"
+    ],
+    "secrets_storage": "AWS Secrets Manager",
+    "iam_policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"BedrockInvoke\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"bedrock:InvokeModel\",\n        \"bedrock:InvokeModelWithResponseStream\"\n      ],\n      \"Resource\": \"arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-sonnet*\"\n    },\n    {\n      \"Sid\": \"ReadFAQData\",\n      \"Effect\": \"Allow\",\n      \"Action\": \"s3:GetObject\",\n      \"Resource\": \"arn:aws:s3:::my-company-faq-bucket/*\"\n    },\n    {\n      \"Sid\": \"OrderDataAccess\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"dynamodb:GetItem\",\n        \"dynamodb:Query\"\n      ],\n      \"Resource\": [\n        \"arn:aws:dynamodb:us-east-1:123456789:table/orders\",\n        \"arn:aws:dynamodb:us-east-1:123456789:table/orders/index/*\"\n      ]\n    },\n    {\n      \"Sid\": \"ReadSecrets\",\n      \"Effect\": \"Allow\",\n      \"Action\": \"secretsmanager:GetSecretValue\",\n      \"Resource\": \"arn:aws:secretsmanager:us-east-1:123456789:secret:supportbot/*\"\n    },\n    {\n      \"Sid\": \"CloudWatchLogs\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"logs:CreateLogGroup\",\n        \"logs:CreateLogStream\",\n        \"logs:PutLogEvents\"\n      ],\n      \"Resource\": \"arn:aws:logs:us-east-1:123456789:log-group:/aws/lambda/supportbot-*\"\n    }\n  ]\n}",
+    "security_considerations": "Key risks and mitigations:\n\n1. **PII in conversations**: Customer names, emails, order details pass through the agent. Mitigation: Don't log full conversation content, only log anonymized metrics. Enable CloudWatch log encryption.\n\n2. **Order data access**: Agent can access any order, not just the customer's. Mitigation: In v2, add request-level validation that customer can only query their own orders via Identity Service.\n\n3. **Prompt injection**: Malicious users could try to manipulate the agent. Mitigation: Input validation, output filtering, and monitoring for anomalous behavior.\n\n4. **API key exposure**: Zendesk/SendGrid keys could leak. Mitigation: Secrets Manager with rotation, never log API calls with auth headers.\n\n5. **Cost runaway**: Someone could spam the agent. Mitigation: Rate limiting at API Gateway, alerts on unusual Bedrock usage."
+  },
+  "tutorPrompt": "The student has drafted an IAM policy for their capstone agent. Review for: (1) Least privilege - are they granting more than needed?, (2) Resource specificity - are resources scoped or using wildcards?, (3) Completeness - did they account for all services their tools need?, (4) Security thinking - do their considerations show understanding of real risks? Provide specific feedback and suggest improvements."
+}

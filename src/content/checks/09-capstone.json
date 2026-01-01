@@ -1,0 +1,112 @@
+{
+  "moduleId": "09-capstone",
+  "title": "Capstone Project Assessment",
+  "description": "Demonstrate your understanding of building and deploying production AI agents",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "cap-1",
+      "type": "multiple-choice",
+      "question": "When defining a capstone project, which approach leads to the best outcomes?",
+      "options": [
+        "Start coding immediately to save time",
+        "Define a vague problem so you have flexibility later",
+        "Write a specific problem statement with clear success criteria",
+        "Copy an existing agent design exactly"
+      ],
+      "correctAnswer": 2,
+      "explanation": "A specific problem statement with clear success criteria provides focus and allows you to measure whether your agent is successful. Vague requirements lead to scope creep and unclear outcomes."
+    },
+    {
+      "id": "cap-2",
+      "type": "multiple-choice",
+      "question": "What is the PRIMARY purpose of creating tool specifications with JSON schemas before implementation?",
+      "options": [
+        "To make the documentation look professional",
+        "To ensure the agent knows exactly when and how to use each tool",
+        "To satisfy AWS compliance requirements",
+        "To generate automatic code from the schema"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Well-defined tool specifications with clear descriptions help the agent understand when to use each tool and what parameters to provide. This is the foundation of reliable tool usage."
+    },
+    {
+      "id": "cap-3",
+      "type": "multiple-choice",
+      "question": "In a Customer Support agent, what should trigger escalation to a human?",
+      "options": [
+        "Any question the agent can't answer immediately",
+        "Every 10th conversation to keep humans engaged",
+        "Specific triggers like repeated failures, frustration signals, or explicit requests",
+        "Only when the customer explicitly says 'transfer me'"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Escalation should be triggered by meaningful signals: repeated search failures (agent can't help), detected frustration (emotional need), or explicit requests. This balances automation efficiency with customer satisfaction."
+    },
+    {
+      "id": "cap-4",
+      "type": "multiple-choice",
+      "question": "What is the recommended testing approach for an AI agent?",
+      "options": [
+        "Only end-to-end tests since they cover everything",
+        "Only unit tests since they're fast",
+        "A pyramid: many unit tests, some integration tests, few end-to-end tests",
+        "No automated tests - just manual testing before deployment"
+      ],
+      "correctAnswer": 2,
+      "explanation": "The testing pyramid applies to agents too. Unit tests (fast, isolated) cover tool logic. Integration tests verify agent-tool interaction. End-to-end tests validate realistic conversations. This provides comprehensive coverage efficiently."
+    },
+    {
+      "id": "cap-5",
+      "type": "multiple-choice",
+      "question": "When your agent uses the wrong tool for a query, what is the BEST first fix to try?",
+      "options": [
+        "Add more tools so the agent has better options",
+        "Increase the model temperature for more creativity",
+        "Improve the tool descriptions to clarify when to use each tool",
+        "Switch to a different foundation model"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Tool selection is driven by tool descriptions. If the agent picks the wrong tool, the descriptions likely don't clearly differentiate when to use each one. Improving descriptions is the first and most effective fix."
+    },
+    {
+      "id": "cap-6",
+      "type": "multiple-choice",
+      "question": "What should you configure BEFORE deploying an agent to production?",
+      "options": [
+        "Hardcode all configuration values for performance",
+        "Environment-based configuration, logging, error handling, and rate limiting",
+        "Only logging - everything else can be added later",
+        "Nothing special - just deploy the development code"
+      ],
+      "correctAnswer": 1,
+      "explanation": "Production deployment requires: externalized configuration (environment variables), structured logging, comprehensive error handling, and rate limiting to protect resources. These are essential for operating reliably in production."
+    },
+    {
+      "id": "cap-7",
+      "type": "multiple-choice",
+      "question": "What metric would best indicate your Customer Support agent is performing well?",
+      "options": [
+        "Number of API calls per minute",
+        "Average response length in words",
+        "Task completion rate (correctly answering customer questions)",
+        "Number of different tools used per conversation"
+      ],
+      "correctAnswer": 2,
+      "explanation": "Task completion rate measures whether the agent actually solves customer problems - the core purpose. API calls, response length, and tool diversity are operational metrics but don't directly measure if the agent is helping customers."
+    },
+    {
+      "id": "cap-8",
+      "type": "multiple-choice",
+      "question": "After deploying your agent, you notice it sometimes provides incorrect information. What is the systematic approach to fix this?",
+      "options": [
+        "Immediately rewrite the system prompt completely",
+        "Analyze the failure cases, identify patterns, make targeted improvements, then re-test",
+        "Switch to a more powerful (and expensive) model",
+        "Add a disclaimer that the agent may be wrong"
+      ],
+      "correctAnswer": 1,
+      "explanation": "The iteration loop is: test → analyze → fix → re-test. Analyze failures to find patterns (is it a specific tool? certain topic?), make targeted improvements based on evidence, then verify the fix works. Random changes or disclaimers don't solve the problem."
+    }
+  ]
+}
