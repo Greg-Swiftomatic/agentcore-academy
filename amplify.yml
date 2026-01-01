@@ -6,6 +6,8 @@ frontend:
         - npm install
     build:
       commands:
+        # Make environment variables accessible to Next.js SSR/API routes
+        - env | grep -e OPENROUTER_API_KEY >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next
