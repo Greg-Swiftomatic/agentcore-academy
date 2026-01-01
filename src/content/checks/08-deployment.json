@@ -1,0 +1,118 @@
+{
+  "moduleId": "08-deployment",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "scenario",
+      "question": "You're testing an agent that should refuse to help with harmful requests. The agent says 'I'm unable to assist with that' in one test and 'I cannot help with that request' in another. Both are correct refusals. What type of test handles this non-determinism?",
+      "options": [
+        { "id": "a", "text": "Unit test that checks for exact string 'I cannot help with that'" },
+        { "id": "b", "text": "Behavioral test that checks if the response contains any refusal indicator words" },
+        { "id": "c", "text": "Snapshot test that saves the exact response" },
+        { "id": "d", "text": "Performance test that measures response time" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Behavioral testing checks for the presence of expected behaviors rather than exact outputs. Since agents are non-deterministic, you test for refusal indicators (cannot, won't, unable, etc.) rather than exact phrases. This handles the many valid ways an agent can refuse a request.",
+      "concept": "Behavioral testing for non-deterministic agents"
+    },
+    {
+      "id": "q2",
+      "type": "critical",
+      "question": "Your canary deployment is at 10% traffic. The canary shows 3% error rate while the stable version shows 1% error rate. What should happen?",
+      "options": [
+        { "id": "a", "text": "Continue to 25% - 3% is still acceptable" },
+        { "id": "b", "text": "Automatic rollback - canary is 3x worse than baseline, exceeding typical 1.5x threshold" },
+        { "id": "c", "text": "Wait longer to gather more data" },
+        { "id": "d", "text": "Ignore it - small sample size at 10%" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "The canary error rate (3%) is 3x the baseline (1%), which exceeds the typical 1.5x threshold for automatic rollback. Canary deployments should automatically roll back when the new version performs significantly worse than the stable version, regardless of whether the absolute rate seems 'acceptable'.",
+      "concept": "Canary deployment metrics and rollback"
+    },
+    {
+      "id": "q3",
+      "type": "application",
+      "question": "You want instant rollback capability if a new agent version has issues. Which deployment strategy provides this?",
+      "options": [
+        { "id": "a", "text": "Rolling deployment - gradually replace instances" },
+        { "id": "b", "text": "Blue-green deployment - maintain two identical environments, switch traffic instantly" },
+        { "id": "c", "text": "In-place deployment - update existing instances" },
+        { "id": "d", "text": "Canary deployment - gradual traffic shift" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Blue-green deployment maintains two identical environments (blue and green). When you deploy, you update the inactive environment and switch traffic. Rollback is instant - just switch traffic back to the old environment. This provides zero-downtime deployment and immediate rollback capability.",
+      "concept": "Blue-green deployment strategy"
+    },
+    {
+      "id": "q4",
+      "type": "scenario",
+      "question": "Your pre-launch checklist shows: 'Secrets stored in environment variables'. Is this acceptable for production?",
+      "options": [
+        { "id": "a", "text": "Yes - environment variables are the standard way to configure applications" },
+        { "id": "b", "text": "No - secrets should be stored in AWS Secrets Manager with automatic rotation, not in environment variables" },
+        { "id": "c", "text": "Yes - as long as the environment variables are encrypted at rest" },
+        { "id": "d", "text": "No - secrets should be hardcoded in a config file" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Environment variables are visible in process listings, logs, and error reports. Secrets should be stored in AWS Secrets Manager (or similar) where they're encrypted, access is audited, and automatic rotation is possible. The agent should fetch secrets at runtime, not receive them via environment.",
+      "concept": "Secrets management for production"
+    },
+    {
+      "id": "q5",
+      "type": "application",
+      "question": "You're writing a test for your agent's calculator tool. Which approach tests the tool correctly?",
+      "options": [
+        { "id": "a", "text": "Test with a real LLM to see if it uses the calculator correctly" },
+        { "id": "b", "text": "Unit test the tool directly: assert CalculatorTool().execute('2+2') == 4" },
+        { "id": "c", "text": "Integration test with mocked LLM that requests the tool" },
+        { "id": "d", "text": "Both B and C - unit test the tool, then integration test its usage by the agent" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "The testing pyramid applies: (1) Unit test the tool in isolation - verify it computes correctly. (2) Integration test with mocked LLM - verify the agent correctly calls the tool and uses its result. Real LLM tests are expensive and should be minimal. Both unit and integration tests are needed for complete coverage.",
+      "concept": "Testing pyramid for agent components"
+    },
+    {
+      "id": "q6",
+      "type": "critical",
+      "question": "You fixed a bug where your agent crashed on unicode input (issue #456). How do you ensure this bug doesn't return in future releases?",
+      "options": [
+        { "id": "a", "text": "Document it in the README" },
+        { "id": "b", "text": "Add a regression test that specifically tests unicode input and references issue #456" },
+        { "id": "c", "text": "Hope code reviewers catch it" },
+        { "id": "d", "text": "Add a comment in the code where the fix was made" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Regression tests capture previously-fixed bugs and ensure they stay fixed. The test should reference the issue number for context. This is the only reliable way to prevent regressions - documentation and comments don't run automatically in CI. Regression test suites grow over time as bugs are found and fixed.",
+      "concept": "Regression testing"
+    },
+    {
+      "id": "q7",
+      "type": "scenario",
+      "question": "It's launch day (T-0) and your pre-launch checks show 'Rollback procedure tested: FAIL'. What should you do?",
+      "options": [
+        { "id": "a", "text": "Launch anyway - you probably won't need to rollback" },
+        { "id": "b", "text": "Launch with extra monitoring to catch issues quickly" },
+        { "id": "c", "text": "ABORT: Fix the rollback procedure before launching - you need reliable recovery" },
+        { "id": "d", "text": "Launch to a small percentage and hope for the best" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "A broken rollback procedure means you can't recover quickly if something goes wrong. This is a launch blocker. Murphy's Law applies: if you launch without working rollback, you'll need it. Fix the rollback procedure, re-test it, and then launch. Safe deployment requires reliable recovery.",
+      "concept": "Pre-launch checklist criticality"
+    },
+    {
+      "id": "q8",
+      "type": "application",
+      "question": "Your agent handles customer orders. For gradual rollout, what's the recommended progression?",
+      "options": [
+        { "id": "a", "text": "0% → 100% - just launch" },
+        { "id": "b", "text": "Internal users → Beta customers → 10% → 25% → 50% → 100% over several days" },
+        { "id": "c", "text": "100% for 1 hour, then rollback if issues" },
+        { "id": "d", "text": "50% → 100% over 2 hours" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Gradual rollout minimizes blast radius: internal users catch obvious issues, beta customers provide real-world feedback, then percentage increases over days (not hours) with monitoring at each stage. This gives time to detect issues before they affect all users. Fast rollouts (hours) don't give enough time to observe problems.",
+      "concept": "Gradual rollout strategy"
+    }
+  ]
+}
