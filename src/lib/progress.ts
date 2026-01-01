@@ -58,7 +58,8 @@ export async function getUserProgress(userId: string): Promise<ModuleProgress[]>
     }
 
     console.log("[Progress] Fetched progress:", data);
-    return (data || []).map((item) => ({
+    
+    const allRecords = (data || []).map((item) => ({
       id: item.id,
       userId: item.userId,
       moduleId: item.moduleId,
@@ -69,6 +70,22 @@ export async function getUserProgress(userId: string): Promise<ModuleProgress[]>
       comprehensionChecks: item.comprehensionChecks as Record<string, unknown> | undefined,
       bookmarks: item.bookmarks?.filter((b): b is string => b !== null) || [],
     }));
+
+    const deduped = new Map<string, ModuleProgress>();
+    for (const record of allRecords) {
+      const existing = deduped.get(record.moduleId);
+      if (!existing) {
+        deduped.set(record.moduleId, record);
+      } else if (record.status === "COMPLETED" && existing.status !== "COMPLETED") {
+        deduped.set(record.moduleId, record);
+      } else if (record.completedAt && (!existing.completedAt || record.completedAt > existing.completedAt)) {
+        deduped.set(record.moduleId, record);
+      }
+    }
+
+    const result = Array.from(deduped.values());
+    console.log("[Progress] Deduplicated progress:", result);
+    return result;
   } catch (error) {
     console.error("[Progress] Error fetching user progress:", error);
     return [];
@@ -94,8 +111,7 @@ export async function getModuleProgress(
       return null;
     }
 
-    const item = data[0];
-    return {
+    const records = data.map((item) => ({
       id: item.id,
       userId: item.userId,
       moduleId: item.moduleId,
@@ -105,7 +121,12 @@ export async function getModuleProgress(
       currentLessonId: item.currentLessonId || undefined,
       comprehensionChecks: item.comprehensionChecks as Record<string, unknown> | undefined,
       bookmarks: item.bookmarks?.filter((b): b is string => b !== null) || [],
-    };
+    }));
+
+    const completed = records.find((r) => r.status === "COMPLETED");
+    if (completed) return completed;
+
+    return records[0];
   } catch (error) {
     console.error("[Progress] Error fetching module progress:", error);
     return null;
