@@ -1,0 +1,118 @@
+{
+  "moduleId": "07-advanced-topics",
+  "passingScore": 80,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "scenario",
+      "question": "You're building a code review system that needs to check security, performance, AND style. Each review type takes 30 seconds. Using a single agent sequentially would take 90 seconds. How can you reduce total latency to ~30 seconds?",
+      "options": [
+        { "id": "a", "text": "Use a faster LLM model" },
+        { "id": "b", "text": "Use parallel fan-out with three specialized agents running concurrently, then aggregate results" },
+        { "id": "c", "text": "Reduce the review scope to only check one dimension" },
+        { "id": "d", "text": "Cache all code reviews permanently" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Parallel fan-out runs multiple specialized agents concurrently. Three 30-second tasks run in parallel complete in ~30 seconds total, not 90. A supervisor agent can aggregate the three review results into a unified report. This is a classic use case for multi-agent parallelization.",
+      "concept": "Parallel multi-agent orchestration"
+    },
+    {
+      "id": "q2",
+      "type": "critical",
+      "question": "Your agent evaluation shows 95% correctness but users are complaining the agent isn't helpful. What's likely missing from your evaluation?",
+      "options": [
+        { "id": "a", "text": "Nothing - 95% correctness is excellent" },
+        { "id": "b", "text": "You're only measuring correctness, not helpfulness - the agent may be accurate but unhelpful (too brief, hard to understand, not actionable)" },
+        { "id": "c", "text": "Users don't understand what the agent is saying" },
+        { "id": "d", "text": "The evaluation dataset is too small" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Correctness and helpfulness are different dimensions. An agent can give accurate information that's useless in practice - too terse, lacking context, or not actionable. Comprehensive evaluation requires multiple dimensions: correctness, helpfulness, clarity, safety, efficiency. One metric doesn't capture agent quality.",
+      "concept": "Multi-dimensional agent evaluation"
+    },
+    {
+      "id": "q3",
+      "type": "application",
+      "question": "You want to compare your new prompt against the current production prompt with real users. Which evaluation method should you use?",
+      "options": [
+        { "id": "a", "text": "Reference-based evaluation with a test dataset" },
+        { "id": "b", "text": "LLM-as-judge evaluation" },
+        { "id": "c", "text": "A/B testing with live traffic split between versions" },
+        { "id": "d", "text": "Manual code review of both prompts" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "A/B testing compares versions with real production traffic, measuring actual user outcomes. Reference-based and LLM-as-judge evaluate against test cases, not real usage. A/B testing reveals how changes affect real users - the ultimate evaluation. Split traffic, measure success metrics, compare statistically.",
+      "concept": "A/B testing for agent evaluation"
+    },
+    {
+      "id": "q4",
+      "type": "scenario",
+      "question": "Your agent deployment is hitting LLM rate limits during peak hours. Requests are being rejected. What's the FIRST thing you should implement?",
+      "options": [
+        { "id": "a", "text": "Add more regions" },
+        { "id": "b", "text": "Implement request queuing to buffer traffic spikes instead of rejecting immediately" },
+        { "id": "c", "text": "Switch to a faster model" },
+        { "id": "d", "text": "Tell users to retry later" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Request queuing buffers traffic spikes so requests wait rather than fail. During peak, queue absorbs the burst; requests process as capacity becomes available. This provides much better user experience than immediate rejection. Multi-region or model changes are bigger investments for later.",
+      "concept": "Request queuing for traffic spikes"
+    },
+    {
+      "id": "q5",
+      "type": "application",
+      "question": "In a hierarchical multi-agent system, the security reviewer agent fails after 3 retries. What should the supervisor agent do?",
+      "options": [
+        { "id": "a", "text": "Fail the entire request immediately" },
+        { "id": "b", "text": "Continue with other reviewers, return partial results, and flag that security review is missing" },
+        { "id": "c", "text": "Retry indefinitely until security reviewer works" },
+        { "id": "d", "text": "Replace the security review with a performance review" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Graceful degradation means continuing with reduced functionality. If security review is non-critical (or has a human fallback), return partial results with a clear flag that security wasn't checked. If security is mandatory, escalate to human. Never retry indefinitely or substitute unrelated functionality.",
+      "concept": "Multi-agent error handling"
+    },
+    {
+      "id": "q6",
+      "type": "scenario",
+      "question": "Your agent processes 100,000 requests/day with 1,000 tokens average per request. Peak traffic is 3x average. Which capacity metric matters MOST for scaling LLM usage?",
+      "options": [
+        { "id": "a", "text": "Total daily tokens (100M tokens/day)" },
+        { "id": "b", "text": "Peak tokens per minute - approximately 208,000 TPM at 3x peak" },
+        { "id": "c", "text": "Average requests per second" },
+        { "id": "d", "text": "Total cost per day" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "LLM rate limits are typically expressed as tokens per minute (TPM). Daily totals don't matter if you can't handle peak minute. Calculation: 100K requests/day = 69 req/min average. At 3x peak = 207 req/min * 1000 tokens = 207,000 TPM peak. Your LLM must handle peak TPM, not average.",
+      "concept": "Capacity planning for LLM scale"
+    },
+    {
+      "id": "q7",
+      "type": "concept",
+      "question": "When using LLM-as-judge evaluation, why is it important to use a DIFFERENT (often more capable) model as the judge than the agent being evaluated?",
+      "options": [
+        { "id": "a", "text": "It's cheaper to use different models" },
+        { "id": "b", "text": "Same model judging itself has blind spots - it may not catch errors it would also make. A more capable judge can identify issues the agent misses." },
+        { "id": "c", "text": "Different models are faster" },
+        { "id": "d", "text": "It's an AWS requirement" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Self-evaluation has blind spots - a model likely won't catch errors it's prone to making. Using a more capable model (e.g., Claude Opus judging Haiku) provides more reliable evaluation because the judge can recognize mistakes the agent would miss. This is like having a senior engineer review junior work.",
+      "concept": "LLM-as-judge evaluation design"
+    },
+    {
+      "id": "q8",
+      "type": "critical",
+      "question": "Your multi-agent system has agents communicating via shared memory. Agent A writes data, Agent B reads it. Under load, Agent B sometimes reads stale data. What's causing this?",
+      "options": [
+        { "id": "a", "text": "The LLM is too slow" },
+        { "id": "b", "text": "Race condition - Agent B reads before Agent A's write completes. Need synchronization or event-based coordination." },
+        { "id": "c", "text": "The memory service has a bug" },
+        { "id": "d", "text": "Too many agents are running" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "This is a classic race condition: Agent B reads before Agent A finishes writing. Solutions: (1) Event-based coordination - B waits for 'write_complete' event from A; (2) Synchronization primitives - ensure read-after-write ordering; (3) Retry with backoff if data not available. Parallel agents need explicit coordination.",
+      "concept": "Multi-agent synchronization"
+    }
+  ]
+}
