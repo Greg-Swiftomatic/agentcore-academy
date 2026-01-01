@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Exercise, ExerciseField } from "@/lib/exercises";
+import { useAuth } from "@/lib/auth";
+import { saveExerciseDraft, loadExerciseDraft } from "@/lib/progress";
 
 interface ExerciseProps {
   exercise: Exercise;
@@ -9,12 +11,45 @@ interface ExerciseProps {
 }
 
 export function ExerciseComponent({ exercise, onSubmitToTutor }: ExerciseProps) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [listInputs, setListInputs] = useState<Record<string, string>>({});
   const [showExample, setShowExample] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadDraft() {
+      if (!user?.id) {
+        setIsLoading(false);
+        return;
+      }
+
+      const draft = await loadExerciseDraft(user.id, exercise.moduleId, exercise.exerciseId);
+      if (draft) {
+        setFormData(draft);
+        setSaveStatus("saved");
+      }
+      setIsLoading(false);
+    }
+
+    loadDraft();
+  }, [user?.id, exercise.moduleId, exercise.exerciseId]);
+
+  const handleSave = useCallback(async () => {
+    if (!user?.id) {
+      alert("Please sign in to save your progress");
+      return;
+    }
+
+    setSaveStatus("saving");
+    const success = await saveExerciseDraft(user.id, exercise.moduleId, exercise.exerciseId, formData);
+    setSaveStatus(success ? "saved" : "error");
+  }, [user?.id, exercise.moduleId, exercise.exerciseId, formData]);
 
   const handleFieldChange = (name: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (saveStatus === "saved") setSaveStatus("idle");
   };
 
   const handleListAdd = (name: string) => {
@@ -199,6 +234,20 @@ export function ExerciseComponent({ exercise, onSubmitToTutor }: ExerciseProps) 
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="flex items-center gap-3 text-text-muted">
+          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          Loading exercise...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div className="schematic-box" data-label="EXERCISE">
@@ -291,7 +340,7 @@ export function ExerciseComponent({ exercise, onSubmitToTutor }: ExerciseProps) 
         </ul>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex items-center gap-4">
         <button
           onClick={handleSubmitForReview}
           className="btn btn-primary"
@@ -302,14 +351,36 @@ export function ExerciseComponent({ exercise, onSubmitToTutor }: ExerciseProps) 
           Submit for AI Review
         </button>
         <button
-          onClick={() => {
-            console.log("Saving draft:", formData);
-            alert("Draft saved locally! (In production, this would save to your account)");
-          }}
-          className="btn btn-secondary"
+          onClick={handleSave}
+          disabled={saveStatus === "saving"}
+          className="btn btn-secondary disabled:opacity-50"
         >
-          Save Draft
+          {saveStatus === "saving" ? (
+            <>
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Saving...
+            </>
+          ) : (
+            "Save Draft"
+          )}
         </button>
+        {saveStatus === "saved" && (
+          <span className="text-success text-sm flex items-center gap-1">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            Saved
+          </span>
+        )}
+        {saveStatus === "error" && (
+          <span className="text-error text-sm">Save failed - try again</span>
+        )}
+        {!user && (
+          <span className="text-warning text-sm">Sign in to save progress</span>
+        )}
       </div>
     </div>
   );

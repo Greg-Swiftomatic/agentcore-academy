@@ -313,7 +313,6 @@ export async function toggleBookmark(
     let existing = await getModuleProgress(userId, moduleId);
 
     if (!existing) {
-      // Start module first
       existing = await startModule(userId, moduleId, lessonId);
       if (!existing) return false;
     }
@@ -334,5 +333,113 @@ export async function toggleBookmark(
   } catch (error) {
     console.error("[Progress] Error toggling bookmark:", error);
     return false;
+  }
+}
+
+export interface ExerciseSubmission {
+  id: string;
+  odId: string;
+  moduleId: string;
+  exerciseId: string;
+  formData: Record<string, unknown>;
+  status: "DRAFT" | "SUBMITTED";
+  submittedAt?: string;
+  updatedAt?: string;
+}
+
+export async function saveExerciseDraft(
+  userId: string,
+  moduleId: string,
+  exerciseId: string,
+  formData: Record<string, unknown>
+): Promise<boolean> {
+  console.log("[Exercise] Saving draft:", { userId, moduleId, exerciseId });
+
+  if (!userId) {
+    console.error("[Exercise] Cannot save: userId is empty");
+    return false;
+  }
+
+  try {
+    const { data: existing } = await client.models.ExerciseSubmission.list({
+      filter: {
+        userId: { eq: userId },
+        moduleId: { eq: moduleId },
+      },
+    });
+
+    const existingSubmission = existing?.find((s) => s.exerciseId === exerciseId);
+
+    if (existingSubmission) {
+      console.log("[Exercise] Updating existing draft:", existingSubmission.id);
+      const { errors } = await client.models.ExerciseSubmission.update({
+        id: existingSubmission.id,
+        formData: JSON.stringify(formData),
+        status: "DRAFT",
+        updatedAt: new Date().toISOString(),
+      });
+
+      if (errors && errors.length > 0) {
+        console.error("[Exercise] Update error:", errors);
+        return false;
+      }
+      return true;
+    }
+
+    console.log("[Exercise] Creating new draft");
+    const { errors } = await client.models.ExerciseSubmission.create({
+      userId,
+      moduleId,
+      exerciseId,
+      formData: JSON.stringify(formData),
+      status: "DRAFT",
+      updatedAt: new Date().toISOString(),
+    });
+
+    if (errors && errors.length > 0) {
+      console.error("[Exercise] Create error:", errors);
+      return false;
+    }
+
+    console.log("[Exercise] Draft saved successfully");
+    return true;
+  } catch (error) {
+    console.error("[Exercise] Error saving draft:", error);
+    return false;
+  }
+}
+
+export async function loadExerciseDraft(
+  userId: string,
+  moduleId: string,
+  exerciseId: string
+): Promise<Record<string, unknown> | null> {
+  console.log("[Exercise] Loading draft:", { userId, moduleId, exerciseId });
+
+  if (!userId) return null;
+
+  try {
+    const { data } = await client.models.ExerciseSubmission.list({
+      filter: {
+        userId: { eq: userId },
+        moduleId: { eq: moduleId },
+      },
+    });
+
+    const submission = data?.find((s) => s.exerciseId === exerciseId);
+
+    if (!submission?.formData) {
+      console.log("[Exercise] No draft found");
+      return null;
+    }
+
+    console.log("[Exercise] Draft loaded");
+    const formData = typeof submission.formData === "string" 
+      ? JSON.parse(submission.formData) 
+      : submission.formData;
+    return formData as Record<string, unknown>;
+  } catch (error) {
+    console.error("[Exercise] Error loading draft:", error);
+    return null;
   }
 }

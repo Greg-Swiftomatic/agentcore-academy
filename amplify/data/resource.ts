@@ -58,22 +58,35 @@ const schema = a.schema({
     ])
     .authorization((allow) => [allow.owner()]),
 
-  // Learning state for AI tutor context
   LearningState: a
     .model({
       id: a.id().required(),
       userId: a.string().required(),
       moduleId: a.string().required(),
-      // Summary of recent AI conversation for continuity
       lastContext: a.string(),
-      // Topics the AI has explained to this user
       topicsExplained: a.string().array(),
-      // Knowledge gaps the AI has identified
       identifiedGaps: a.string().array(),
       owner: a.string(),
     })
     .secondaryIndexes((index) => [
       index("userId").sortKeys(["moduleId"]).queryField("learningStateByUser"),
+    ])
+    .authorization((allow) => [allow.owner()]),
+
+  ExerciseSubmission: a
+    .model({
+      id: a.id().required(),
+      userId: a.string().required(),
+      moduleId: a.string().required(),
+      exerciseId: a.string().required(),
+      formData: a.json().required(),
+      status: a.enum(["DRAFT", "SUBMITTED"]),
+      submittedAt: a.datetime(),
+      updatedAt: a.datetime(),
+      owner: a.string(),
+    })
+    .secondaryIndexes((index) => [
+      index("userId").sortKeys(["moduleId"]).queryField("submissionsByUser"),
     ])
     .authorization((allow) => [allow.owner()]),
 });
