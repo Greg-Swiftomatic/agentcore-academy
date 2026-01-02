@@ -29,11 +29,13 @@
       ],
       "redirect_sign_in_uri": [
         "http://localhost:3000/auth/callback",
-        "https://main.d137jxngnvzxkf.amplifyapp.com/auth/callback"
+        "https://main.d137jxngnvzxkf.amplifyapp.com/auth/callback",
+        "https://agentcore-training.online/auth/callback"
       ],
       "redirect_sign_out_uri": [
         "http://localhost:3000/",
-        "https://main.d137jxngnvzxkf.amplifyapp.com/"
+        "https://main.d137jxngnvzxkf.amplifyapp.com/",
+        "https://agentcore-training.online/"
       ],
       "response_type": "code",
       "scopes": [
