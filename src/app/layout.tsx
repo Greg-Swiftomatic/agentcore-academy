@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   title: "AgentCore Academy",
   description:
     "Learn Amazon Bedrock AgentCore through interactive lessons and AI-powered tutoring",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
