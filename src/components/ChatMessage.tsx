@@ -1,5 +1,8 @@
 "use client";
 
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
 interface ChatMessageProps {
   role: "user" | "assistant";
   content: string;
@@ -47,8 +50,12 @@ export function ChatMessage({ role, content, isStreaming }: ChatMessageProps) {
             </>
           )}
           
-          <div className="text-sm leading-relaxed whitespace-pre-wrap text-text-primary font-body">
-            {content}
+          <div className="text-sm leading-relaxed text-text-primary font-body chat-markdown">
+            {isAssistant ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            ) : (
+              <span className="whitespace-pre-wrap">{content}</span>
+            )}
             {isStreaming && (
               <span className="inline-block w-2 h-4 ml-1 bg-cyan animate-blink" />
             )}

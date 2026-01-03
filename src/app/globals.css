@@ -620,3 +620,167 @@ a:hover {
 .glow-box {
   box-shadow: 0 0 20px var(--color-cyan-glow), inset 0 0 20px rgba(0, 212, 255, 0.05);
 }
+
+/* ==================== */
+/* CHAT MARKDOWN STYLES */
+/* ==================== */
+
+.chat-markdown {
+  /* Reset paragraph margins for better spacing */
+}
+
+.chat-markdown p {
+  margin: 0.5em 0;
+}
+
+.chat-markdown p:first-child {
+  margin-top: 0;
+}
+
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+/* Headings in chat */
+.chat-markdown h1,
+.chat-markdown h2,
+.chat-markdown h3,
+.chat-markdown h4,
+.chat-markdown h5,
+.chat-markdown h6 {
+  font-family: var(--font-display);
+  color: var(--color-cyan);
+  margin: 1em 0 0.5em;
+  font-size: 1em;
+  text-transform: none;
+}
+
+.chat-markdown h1:first-child,
+.chat-markdown h2:first-child,
+.chat-markdown h3:first-child {
+  margin-top: 0;
+}
+
+/* Bold and italic */
+.chat-markdown strong {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.chat-markdown em {
+  color: var(--color-cyan);
+  font-style: italic;
+}
+
+/* Code blocks */
+.chat-markdown pre {
+  background-color: var(--color-bg-deep);
+  border: 1px dashed var(--color-border-dashed);
+  padding: 1rem;
+  margin: 0.75em 0;
+  overflow-x: auto;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.chat-markdown pre::before {
+  display: none;
+}
+
+.chat-markdown pre code {
+  background: none;
+  padding: 0;
+  border: none;
+  color: var(--color-text-primary);
+  font-size: inherit;
+}
+
+/* Inline code */
+.chat-markdown code:not(pre code) {
+  background-color: var(--color-cyan-muted);
+  padding: 0.15em 0.4em;
+  border: 1px solid var(--color-border-subtle);
+  font-size: 0.9em;
+  color: var(--color-cyan);
+}
+
+/* Lists */
+.chat-markdown ul,
+.chat-markdown ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.chat-markdown li {
+  margin: 0.25em 0;
+  color: var(--color-text-secondary);
+}
+
+.chat-markdown ul li::marker {
+  color: var(--color-cyan);
+}
+
+.chat-markdown ol li::marker {
+  color: var(--color-cyan);
+}
+
+/* Tables */
+.chat-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75em 0;
+  font-size: 12px;
+  overflow-x: auto;
+  display: block;
+}
+
+.chat-markdown thead {
+  background-color: var(--color-bg-deep);
+}
+
+.chat-markdown th {
+  color: var(--color-cyan);
+  font-weight: 700;
+  text-align: left;
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--color-border-dashed);
+  white-space: nowrap;
+}
+
+.chat-markdown td {
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+}
+
+.chat-markdown tbody tr:hover {
+  background-color: var(--color-cyan-muted);
+}
+
+/* Blockquotes */
+.chat-markdown blockquote {
+  border-left: 2px solid var(--color-cyan);
+  padding-left: 1em;
+  margin: 0.75em 0;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Links */
+.chat-markdown a {
+  color: var(--color-cyan);
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-underline-offset: 2px;
+}
+
+.chat-markdown a:hover {
+  text-decoration-style: solid;
+}
+
+/* Horizontal rule */
+.chat-markdown hr {
+  border: none;
+  border-top: 1px dashed var(--color-border-dashed);
+  margin: 1em 0;
+}
