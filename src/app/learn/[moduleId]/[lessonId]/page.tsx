@@ -224,20 +224,61 @@ export default async function LessonPage({ params }: LessonPageProps) {
   );
 }
 
-// Simple markdown-like renderer for lesson content with blueprint styling
 function LessonContent({ content }: { content: string }) {
   const lines = content.split("\n");
   const elements: React.ReactNode[] = [];
   let inCodeBlock = false;
   let codeBlockContent: string[] = [];
   let codeBlockLang = "";
+  let tableRows: string[] = [];
+  let elementKey = 0;
 
-  lines.forEach((line, i) => {
-    // Handle code blocks
+  const flushTable = () => {
+    if (tableRows.length === 0) return;
+    
+    const headerRow = tableRows[0];
+    const dataRows = tableRows.slice(2);
+    
+    const parseRow = (row: string) => 
+      row.split("|").slice(1, -1).map(cell => cell.trim());
+    
+    const headers = parseRow(headerRow);
+    
+    elements.push(
+      <div key={elementKey++} className="my-6 overflow-x-auto">
+        <table className="lesson-table w-full border-collapse text-sm">
+          <thead>
+            <tr>
+              {headers.map((header, i) => (
+                <th key={i} className="text-left px-3 py-2 border border-border-dashed bg-bp-deep text-cyan font-bold">
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {dataRows.map((row, rowIdx) => (
+              <tr key={rowIdx} className="hover:bg-cyan-muted/30">
+                {parseRow(row).map((cell, cellIdx) => (
+                  <td key={cellIdx} className="px-3 py-2 border border-border-subtle text-text-secondary">
+                    <InlineMarkdown text={cell} />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+    tableRows = [];
+  };
+
+  lines.forEach((line) => {
     if (line.startsWith("```")) {
+      flushTable();
       if (inCodeBlock) {
         elements.push(
-          <pre key={i} className="my-6 bg-bp-deep border border-dashed border-border-dashed p-4 overflow-x-auto relative">
+          <pre key={elementKey++} className="my-6 bg-bp-deep border border-dashed border-border-dashed p-4 overflow-x-auto relative">
             <span className="absolute -top-2 left-4 bg-bp-primary px-2 text-[10px] uppercase tracking-wider text-cyan">
               {codeBlockLang || "code"}
             </span>
@@ -260,10 +301,16 @@ function LessonContent({ content }: { content: string }) {
       return;
     }
 
-    // Handle headings
+    if (line.startsWith("|") && line.endsWith("|")) {
+      tableRows.push(line);
+      return;
+    } else if (tableRows.length > 0) {
+      flushTable();
+    }
+
     if (line.startsWith("# ")) {
       elements.push(
-        <h1 key={i} className="font-display text-2xl text-text-primary mt-8 mb-4 flex items-center gap-3">
+        <h1 key={elementKey++} className="font-display text-2xl text-text-primary mt-8 mb-4 flex items-center gap-3">
           <span className="h-px w-8 bg-cyan" />
           {line.slice(2)}
         </h1>
@@ -272,7 +319,7 @@ function LessonContent({ content }: { content: string }) {
     }
     if (line.startsWith("## ")) {
       elements.push(
-        <h2 key={i} className="font-display text-xl text-text-primary mt-8 mb-4">
+        <h2 key={elementKey++} className="font-display text-xl text-text-primary mt-8 mb-4">
           {line.slice(3)}
         </h2>
       );
@@ -280,17 +327,16 @@ function LessonContent({ content }: { content: string }) {
     }
     if (line.startsWith("### ")) {
       elements.push(
-        <h3 key={i} className="font-display text-lg text-cyan mt-6 mb-3">
+        <h3 key={elementKey++} className="font-display text-lg text-cyan mt-6 mb-3">
           {line.slice(4)}
         </h3>
       );
       return;
     }
 
-    // Handle list items
     if (line.startsWith("- ")) {
       elements.push(
-        <li key={i} className="ml-6 text-text-secondary list-none flex items-start gap-2 my-1">
+        <li key={elementKey++} className="ml-6 text-text-secondary list-none flex items-start gap-2 my-1">
           <span className="text-cyan mt-1.5">▸</span>
           <span><InlineMarkdown text={line.slice(2)} /></span>
         </li>
@@ -298,11 +344,10 @@ function LessonContent({ content }: { content: string }) {
       return;
     }
 
-    // Handle numbered lists
     const numberedMatch = line.match(/^(\d+)\. (.+)/);
     if (numberedMatch) {
       elements.push(
-        <li key={i} className="ml-6 text-text-secondary list-none flex items-start gap-3 my-2">
+        <li key={elementKey++} className="ml-6 text-text-secondary list-none flex items-start gap-3 my-2">
           <span className="w-5 h-5 border border-cyan text-cyan text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
             {numberedMatch[1]}
           </span>
@@ -312,63 +357,77 @@ function LessonContent({ content }: { content: string }) {
       return;
     }
 
-    // Handle empty lines
     if (line.trim() === "") {
-      elements.push(<div key={i} className="h-4" />);
+      elements.push(<div key={elementKey++} className="h-4" />);
       return;
     }
 
-    // Regular paragraphs
     elements.push(
-      <p key={i} className="text-text-secondary leading-relaxed mb-4">
+      <p key={elementKey++} className="text-text-secondary leading-relaxed mb-4">
         <InlineMarkdown text={line} />
       </p>
     );
   });
 
+  flushTable();
+
   return <>{elements}</>;
 }
 
-// Handle inline markdown (bold, code, etc.)
 function InlineMarkdown({ text }: { text: string }) {
   const parts: React.ReactNode[] = [];
   let remaining = text;
   let key = 0;
 
   while (remaining) {
-    // Bold
     const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+    const italicMatch = remaining.match(/(?<!\*)\*([^*]+)\*(?!\*)/);
+    const codeMatch = remaining.match(/`(.+?)`/);
+
+    const matches: { type: string; match: RegExpMatchArray; index: number }[] = [];
     if (boldMatch && boldMatch.index !== undefined) {
-      if (boldMatch.index > 0) {
-        parts.push(<span key={key++}>{remaining.slice(0, boldMatch.index)}</span>);
-      }
+      matches.push({ type: "bold", match: boldMatch, index: boldMatch.index });
+    }
+    if (italicMatch && italicMatch.index !== undefined) {
+      matches.push({ type: "italic", match: italicMatch, index: italicMatch.index });
+    }
+    if (codeMatch && codeMatch.index !== undefined) {
+      matches.push({ type: "code", match: codeMatch, index: codeMatch.index });
+    }
+
+    if (matches.length === 0) {
+      parts.push(<span key={key++}>{remaining}</span>);
+      break;
+    }
+
+    matches.sort((a, b) => a.index - b.index);
+    const first = matches[0];
+
+    if (first.index > 0) {
+      parts.push(<span key={key++}>{remaining.slice(0, first.index)}</span>);
+    }
+
+    if (first.type === "bold") {
       parts.push(
         <strong key={key++} className="text-text-primary font-bold">
-          {boldMatch[1]}
+          {first.match[1]}
         </strong>
       );
-      remaining = remaining.slice(boldMatch.index + boldMatch[0].length);
-      continue;
-    }
-
-    // Inline code
-    const codeMatch = remaining.match(/`(.+?)`/);
-    if (codeMatch && codeMatch.index !== undefined) {
-      if (codeMatch.index > 0) {
-        parts.push(<span key={key++}>{remaining.slice(0, codeMatch.index)}</span>);
-      }
+    } else if (first.type === "italic") {
+      parts.push(
+        <em key={key++} className="text-cyan italic">
+          {first.match[1]}
+        </em>
+      );
+    } else if (first.type === "code") {
       parts.push(
         <code key={key++} className="bg-cyan-muted text-cyan px-1.5 py-0.5 text-sm border border-border-subtle">
-          {codeMatch[1]}
+          {first.match[1]}
         </code>
       );
-      remaining = remaining.slice(codeMatch.index + codeMatch[0].length);
-      continue;
     }
 
-    // No more matches
-    parts.push(<span key={key++}>{remaining}</span>);
-    break;
+    remaining = remaining.slice(first.index + first.match[0].length);
   }
 
   return <>{parts}</>;
