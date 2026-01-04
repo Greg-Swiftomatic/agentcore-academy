@@ -282,7 +282,7 @@ function LessonContent({ content }: { content: string }) {
             <span className="absolute -top-2 left-4 bg-bp-primary px-2 text-[10px] uppercase tracking-wider text-cyan">
               {codeBlockLang || "code"}
             </span>
-            <code className="text-text-primary text-sm font-body">
+            <code className="text-text-primary text-sm">
               {codeBlockContent.join("\n")}
             </code>
           </pre>
